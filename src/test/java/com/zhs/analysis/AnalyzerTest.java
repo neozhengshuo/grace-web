@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 public class AnalyzerTest {
-
-
     @Test
     void getTrendUpwardsMa63Ma250Test(){
         Analyzer analyzer = new Analyzer();
@@ -17,8 +15,6 @@ public class AnalyzerTest {
         for(String name:stocks)
             System.out.println(name);
     }
-
-
 
     @Test
     void getTrendUpwardsAndPriceLowerWith63MaTest(){
@@ -101,8 +97,16 @@ public class AnalyzerTest {
     @Test
     void sideWaysTest2(){
         Analyzer analyzer = new Analyzer();
-        List<String> results = analyzer.sideWays(5,0.023,100);
+        List<String> results = analyzer.sideWays(20,0.015);
         FileUtil.writeTxtWithStockCodeList("横盘",results,true);
+        System.out.println(results.size());
+    }
+
+    @Test
+    void movingAverageVolatilityTest(){
+        Analyzer analyzer = new Analyzer();
+        List<String> results = analyzer.movingAverageVolatility(30,0.04F);
+        FileUtil.writeTxtWithStockCodeList("均线浮动率",results,true);
         System.out.println(results.size());
     }
 

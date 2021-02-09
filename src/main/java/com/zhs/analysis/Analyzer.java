@@ -1,6 +1,7 @@
 package com.zhs.analysis;
 
 import com.zhs.datasource.FileStockDailyData;
+import com.zhs.entities.dict.Boll;
 import com.zhs.utils.AnalysisUtil;
 import com.zhs.utils.PropertyUtil;
 import org.slf4j.Logger;
@@ -25,6 +26,29 @@ import java.util.*;
 
 public class Analyzer {
     private static final Logger logger = LoggerFactory.getLogger(Analyzer.class);
+
+    /**
+     * 获得移动平均线在指定天数内持续上升的股票
+     * @param fileFullPaths
+     * @param ma 移动平均线
+     * @param continued 持续的天数
+     * @return 符合条件的股票
+     */
+    public List<String> getTrendUpwards(List<String> fileFullPaths,int ma,int continued){
+        List<String> results = new ArrayList<>();
+
+        AnalysisUtil analysisUtil = new AnalysisUtil();
+        for(String filePath : fileFullPaths){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(filePath);
+            logger.info(String.format("Loaded %s",filePath));
+            boolean hit1 = analysisUtil.isTrendUpwards(baseBarSeries,ma,continued);
+            if(hit1){
+                results.add(filePath);
+            }
+        }
+
+        return results;
+    }
 
     /**
      * 获得趋势向上的Stock(31MA、63MA向上)
@@ -64,8 +88,6 @@ public class Analyzer {
         String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
 
         List<String> upList = new ArrayList<>();
-
-        int counter = 0;
         AnalysisUtil analysisUtil = new AnalysisUtil();
         for(String fileName:fileNames){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(fileName);
@@ -77,10 +99,9 @@ public class Analyzer {
                 //&& isHit3
             ){
                 upList.add(fileName);
-                counter++;
+
             }
         }
-        logger.info(String.format("分析比：%s/%s",counter,fileNames.length));
         return upList;
     }
 
@@ -404,8 +425,79 @@ public class Analyzer {
         return stockFileList;
     }
 
+    /**
+     * 获取股价在Boll低轨下的股票
+     * @param filePaths 要判断的股票
+     * @return 符合条件的股票
+     */
+    public List<String> getBollLower(List<String> filePaths){
+        List<String> results = new ArrayList<>();
+        for(String path:filePaths){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(path);
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+            StandardDeviationIndicator stdIndicator = new StandardDeviationIndicator(closePriceIndicator,31);
+            BollingerBandsMiddleIndicator mb_indicator = new BollingerBandsMiddleIndicator(sma_31_indicator);
+            BollingerBandsLowerIndicator low_indicator = new BollingerBandsLowerIndicator(mb_indicator,stdIndicator);
+            BollingerBandsUpperIndicator upper_indicator = new BollingerBandsUpperIndicator(mb_indicator,stdIndicator);
+
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<2) continue;
+
+            float currentLowPrice = baseBarSeries.getBar(endIndex).getLowPrice().floatValue();
+            float currentLowerValue = low_indicator.getValue(endIndex).floatValue();
+            boolean hit1 = currentLowPrice <= currentLowerValue;
+            if(hit1){
+                results.add(path);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getBoll(List<String> filePaths, Boll boll){
+        List<String> results = new ArrayList<>();
+        for(String path:filePaths){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(path);
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+            StandardDeviationIndicator stdIndicator = new StandardDeviationIndicator(closePriceIndicator,31);
+            BollingerBandsMiddleIndicator mb_indicator = new BollingerBandsMiddleIndicator(sma_31_indicator);
+            BollingerBandsLowerIndicator low_indicator = new BollingerBandsLowerIndicator(mb_indicator,stdIndicator);
+            BollingerBandsUpperIndicator upper_indicator = new BollingerBandsUpperIndicator(mb_indicator,stdIndicator);
+
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<2) continue;
+
+            switch (boll){
+                case MID:
+                    float currentClosePrice = baseBarSeries.getBar(endIndex).getClosePrice().floatValue();
+                    float currentBollMid = mb_indicator.getValue(endIndex).floatValue();
+                    boolean hit = currentClosePrice<=currentBollMid;
+                    if(hit){
+                        results.add(path);
+                    }
+                case LOWER:
+                    float currentLowPrice = baseBarSeries.getBar(endIndex).getLowPrice().floatValue();
+                    float currentLowerValue = low_indicator.getValue(endIndex).floatValue();
+                    boolean hit1 = currentLowPrice <= currentLowerValue;
+                    if(hit1){
+                        results.add(path);
+                    }
+            }
+        }
+        return results;
+    }
+
     // 横盘
     // 指定：持续天数、浮动率（最好设置在0.01-0.075之间）和KD在某个值的下方（最好设置在50）。
+
+    /**
+     * 横盘
+     * @param continueDay 持续天数
+     * @param floatingRate 浮动率（最好设置在0.01-0.075之间）。
+     * @param kdValue D在某个值的下方（最好设置在50）。
+     * @return 符合条件的股票
+     */
     public List<String> sideWays(int continueDay,double floatingRate, float kdValue){
         List<String> stockList = new ArrayList<>();
 
@@ -418,11 +510,11 @@ public class Analyzer {
         //
         List<String> upFilesList = new ArrayList<>();
         for(String str:fileNames){
-            BaseBarSeries baseBarSeries = FileStockDailyData.load(str);
-            boolean isHit = analysisUtil.isTrendUpwards(baseBarSeries,63,15);  // 31ma向上
-            boolean isHit2 = analysisUtil.isTrendUpwards(baseBarSeries,250,30);// 63ma向上
-            boolean isHit3 = analysisUtil.lowerKdj(baseBarSeries,kdValue);
-            if(isHit && isHit2 && isHit3)
+            //BaseBarSeries baseBarSeries = FileStockDailyData.load(str);
+            //boolean isHit = analysisUtil.isTrendUpwards(baseBarSeries,63,15);  // 31ma向上
+            //boolean isHit2 = analysisUtil.isTrendUpwards(baseBarSeries,250,60);// 63ma向上
+            //boolean isHit3 = analysisUtil.lowerKdj(baseBarSeries,kdValue);
+            if(true)
                 upFilesList.add(str);
         }
 
@@ -452,6 +544,107 @@ public class Analyzer {
             }
         }
         return stockList;
+    }
+
+    public List<String> sideWays(int continueDay,double floatingRate){
+        List<String> stockFileList = new ArrayList<>();
+
+        String source = PropertyUtil.getProperty("stock-daily-data");
+        File file = new File(source);
+        String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
+        AnalysisUtil analysisUtil = new AnalysisUtil();
+
+        for(String fileName:fileNames){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(fileName);
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+            StandardDeviationIndicator stdIndicator = new StandardDeviationIndicator(closePriceIndicator,31);
+            BollingerBandsMiddleIndicator mb_indicator = new BollingerBandsMiddleIndicator(sma_31_indicator);
+            BollingerBandsLowerIndicator low_indicator = new BollingerBandsLowerIndicator(mb_indicator,stdIndicator);
+            BollingerBandsUpperIndicator upper_indicator = new BollingerBandsUpperIndicator(mb_indicator,stdIndicator);
+
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<continueDay){
+                continue;
+            }
+
+            List<Double> boll_up_list = new ArrayList<>();
+            List<Double> boll_low_list = new ArrayList<>();
+            for(int i=endIndex;i>endIndex-continueDay;i--){
+                boll_up_list.add(upper_indicator.getValue(i).doubleValue());
+                boll_low_list.add(low_indicator.getValue(i).doubleValue());
+            }
+            double low_max = Collections.max(boll_low_list);
+            double low_min = Collections.min(boll_low_list);
+            double low_diff = low_max-low_min;
+
+            double up_max = Collections.max(boll_up_list);
+            double up_min = Collections.min(boll_up_list);
+            double up_diff = up_max-up_min;
+
+            double up_floating = up_diff/up_max;
+            double low_floating = low_diff/low_max;
+
+            boolean isHit1 = up_floating>0 && up_floating<=floatingRate;
+            boolean isHit2 = low_floating>0 && low_floating<=floatingRate;
+            if(isHit1 && isHit2){
+                stockFileList.add(fileName);
+            }
+        }
+
+        return stockFileList;
+    }
+
+    public List<String> movingAverageVolatility(int continueDay,float maFloatingRate)
+    {
+        List<String> stockFileList = new ArrayList<>();
+
+        String source = PropertyUtil.getProperty("stock-daily-data");
+        File file = new File(source);
+        String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
+        AnalysisUtil analysisUtil = new AnalysisUtil();
+
+        for(String fileName:fileNames){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(fileName);
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_11_indicator = new SMAIndicator(closePriceIndicator,11);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<continueDay){
+                continue;
+            }
+
+            float ma11Max = 0;
+            float ma11Min = 0;
+            float ma31Max = 0;
+            float ma31Min = 0;
+            List<Float> ma11List = new ArrayList<>();
+            List<Float> ma31List = new ArrayList<>();
+
+            for(int i=endIndex;i>endIndex-continueDay;i--){
+                ma11List.add(sma_11_indicator.getValue(i).floatValue());
+                ma31List.add(sma_31_indicator.getValue(i).floatValue());
+            }
+            ma11Min = Collections.min(ma11List);
+            ma11Max = Collections.max(ma11List);
+            float ma11Diff = ma11Max-ma11Min;
+            float ma11Floating = ma11Diff/sma_11_indicator.getValue(endIndex).floatValue();
+
+            ma31Min = Collections.min(ma31List);
+            ma31Max = Collections.max(ma31List);
+            float ma31Diff = ma31Max-ma31Min;
+            float ma31Floating = ma31Diff/sma_31_indicator.getValue(endIndex).floatValue();
+
+            boolean isHit = ma11Floating>0 && ma11Floating<=maFloatingRate;
+            boolean isHit1 = ma31Floating>0 && ma31Floating<=maFloatingRate;
+            if(isHit && isHit1){
+                stockFileList.add(fileName);
+            }
+        }
+
+        return stockFileList;
+
     }
 
     public List<String> captureRedK(int daysAgo,float rate){

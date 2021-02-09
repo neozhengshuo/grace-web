@@ -72,9 +72,8 @@ public class FileStockDailyData {
         return stockDailyList;
     }
 
-    static public BaseBarSeries load(String fileName){
-        BaseBarSeries barSeries = new BaseBarSeries(fileName);;
-        String filePath = PropertyUtil.getProperty("stock-daily-data")+"/"+fileName;
+    static public BaseBarSeries load(String filePath){
+        BaseBarSeries barSeries = new BaseBarSeries(filePath);;
 
         try(FileReader reader = new  FileReader(filePath)){
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
@@ -94,7 +93,6 @@ public class FileStockDailyData {
                         record.get(5));
                 barSeries.addBar(bar);
             }
-            logger.info("loaded:"+filePath);
         }catch (IOException ex){
             logger.error(ex.getMessage());
         }
