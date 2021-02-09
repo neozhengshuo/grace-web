@@ -7,11 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class StrategyTest {
-    private static final Logger logger = LoggerFactory.getLogger(StrategyTest.class);
+public class StrategiesTest {
+    private static final Logger logger = LoggerFactory.getLogger(StrategiesTest.class);
 
     @Test
     public void trendTracking(){
