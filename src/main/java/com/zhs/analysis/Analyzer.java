@@ -4,6 +4,7 @@ import com.zhs.datasource.FileStockDailyData;
 import com.zhs.entities.dict.Boll;
 import com.zhs.utils.AnalysisUtil;
 import com.zhs.utils.PropertyUtil;
+import org.hibernate.collection.internal.PersistentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.Bar;
@@ -21,7 +22,6 @@ import org.ta4j.core.Indicator;
 import org.ta4j.core.indicators.CachedIndicator;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Analyzer {
@@ -29,7 +29,7 @@ public class Analyzer {
 
     /**
      * 获得移动平均线在指定天数内持续上升的股票
-     * @param fileFullPaths
+     * @param fileFullPaths 文件的全路径
      * @param ma 移动平均线
      * @param continued 持续的天数
      * @return 符合条件的股票
@@ -46,8 +46,35 @@ public class Analyzer {
                 results.add(filePath);
             }
         }
-
         return results;
+    }
+
+    /**
+     * 获取均线纠结的股票
+     * @param fileFullPaths 待分析的股票文件
+     * @return
+     */
+    public List<String> getMovingAverageTangled(List<String> fileFullPaths,int tangledDays){
+        List<String> resultList = new ArrayList<>();
+
+        AnalysisUtil analysisUtil = new AnalysisUtil();
+        for(String filePath : fileFullPaths){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(filePath);
+            logger.info(String.format("Loaded %s",filePath));
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<tangledDays){
+                continue;
+            }
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_18_indicator = new SMAIndicator(closePriceIndicator,18);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+            SMAIndicator sma_63_indicator = new SMAIndicator(closePriceIndicator,63);
+            List<?> highPriceList = new ArrayList<>();
+            List<?> lowPriceList = new ArrayList<>();
+            //for()
+        }
+
+        return resultList;
     }
 
     /**
@@ -487,9 +514,6 @@ public class Analyzer {
         }
         return results;
     }
-
-    // 横盘
-    // 指定：持续天数、浮动率（最好设置在0.01-0.075之间）和KD在某个值的下方（最好设置在50）。
 
     /**
      * 横盘
