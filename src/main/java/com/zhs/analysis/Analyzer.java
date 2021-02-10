@@ -50,6 +50,39 @@ public class Analyzer {
     }
 
     /**
+     * 前一天5MA向下，当天5MA向上
+     * @param fileFullPaths 待分析的股票
+     * @return 结果
+     */
+    public List<String> get5MAUp(List<String> fileFullPaths){
+        List<String> results = new ArrayList<>();
+
+        for(String file:fileFullPaths){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<2) continue;
+
+            ClosePriceIndicator closePriceIndicator =
+                    new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_5_Indicator = new SMAIndicator(closePriceIndicator,5);
+            float current_ma5 = sma_5_Indicator.getValue(endIndex).floatValue();
+            float previous1_ma5 = sma_5_Indicator.getValue(endIndex-1).floatValue();
+            float previous2_ma5 = sma_5_Indicator.getValue(endIndex-1-1).floatValue();
+
+            boolean isHit1 = current_ma5>previous1_ma5;
+            boolean isHit2 = previous1_ma5<=previous2_ma5;
+
+            if(isHit1 && isHit2){
+                results.add(file);
+            }
+        }
+
+        return results;
+    }
+
+    /**
      * 获取均线纠结的股票
      * @param fileFullPaths 待分析的股票文件
      * @return
@@ -66,14 +99,50 @@ public class Analyzer {
                 continue;
             }
             ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_5_indicator = new SMAIndicator(closePriceIndicator,5);
+            SMAIndicator sma_11_indicator = new SMAIndicator(closePriceIndicator,11);
             SMAIndicator sma_18_indicator = new SMAIndicator(closePriceIndicator,18);
             SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
             SMAIndicator sma_63_indicator = new SMAIndicator(closePriceIndicator,63);
-            List<?> highPriceList = new ArrayList<>();
-            List<?> lowPriceList = new ArrayList<>();
-            //for()
-        }
+            SMAIndicator sma_250_indicator = new SMAIndicator(closePriceIndicator,250);
 
+            // 获取指定天数内的最高价和最低价
+            //
+            List<Float> highPriceList = new ArrayList<>();
+            List<Float> lowPriceList = new ArrayList<>();
+            for(int i = endIndex;i>=endIndex-tangledDays;i--){
+                Bar bar = baseBarSeries.getBar(i);
+                highPriceList.add(bar.getHighPrice().floatValue());
+                lowPriceList.add(bar.getLowPrice().floatValue());
+            }
+            float highPrice = Collections.max(highPriceList);
+            float lowPrice = Collections.min(lowPriceList);
+
+            // 判断各均线指标是否在最低价和最高价之间
+            //
+            boolean isHit1 = true;
+            for(int i = endIndex;i>=endIndex-tangledDays;i--){
+                float ma5 = sma_5_indicator.getValue(i).floatValue();
+                float ma11 = sma_11_indicator.getValue(i).floatValue();
+                float ma18 = sma_18_indicator.getValue(i).floatValue();
+                float ma31 = sma_31_indicator.getValue(i).floatValue();
+                float ma63 = sma_63_indicator.getValue(i).floatValue();
+                float ma250 = sma_250_indicator.getValue(i).floatValue();
+
+                isHit1 = (ma18<=highPrice && ma18 >= lowPrice)
+                        && (ma31<=highPrice && ma31 >= lowPrice)
+                        && (ma63<=highPrice && ma63 >= lowPrice)
+                        && (ma11<=highPrice && ma11 >= lowPrice)
+                        && (ma250<=highPrice && ma250 >= lowPrice)
+                        && (ma5<=highPrice && ma5 >= lowPrice);
+                if(!isHit1){
+                    break;
+                }
+            }
+            if(isHit1){
+                resultList.add(filePath);
+            }
+        }
         return resultList;
     }
 
