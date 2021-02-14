@@ -2,6 +2,9 @@
 ### Example user template template
 ### Example user template
 
+# grace-2021
+src/test/resources/app.properties
+
 # IntelliJ project files
 .idea
 *.iml

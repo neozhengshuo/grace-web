@@ -41,16 +41,24 @@ public class Analyzer {
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
 
-            // 趋势向上
+            // 趋势向上(31MA,63MA,250MA)
             //
             boolean hit1 = analysisUtil.isTrendUpwards(baseBarSeries,31,10);
             boolean hit2 = analysisUtil.isTrendUpwards(baseBarSeries,63,20);
             boolean hit3 = analysisUtil.isTrendUpwards(baseBarSeries,250,40);
             boolean isTrendUp = hit1 && hit2 && hit3;
 
+            // 判断股价进入Boll中轨
+            //
+            // ...
+
+            // 判断前两天的收盘价持续下跌，但当天上涨
+            //
             int endIndex = baseBarSeries.getEndIndex();
-            Bar current = baseBarSeries.getBar(endIndex);
-            //float currentOpenPrice =
+            Bar currentBar = baseBarSeries.getBar(endIndex);
+            Bar dayAgo1Bar = baseBarSeries.getBar(endIndex-1);
+            Bar dayAgo2Bar = baseBarSeries.getBar(endIndex-1-1);
+            float currentOpenPrice = currentBar.getClosePrice().floatValue();
 
             if(isTrendUp){
                 results.add(file);
