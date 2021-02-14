@@ -12,6 +12,9 @@ import java.util.List;
 public class StrategiesTest {
     private static final Logger logger = LoggerFactory.getLogger(StrategiesTest.class);
 
+    /**
+     * 趋势跟踪，观察买入信号
+     */
     @Test
     public void trendTracking(){
         Analyzer analyzer = new Analyzer();
@@ -43,6 +46,16 @@ public class StrategiesTest {
         printResult(result4);
         logger.info(String.format("股票总数：%s",files.size()));
         logger.info(String.format("命中数量：%s",result4.size()));
+    }
+
+    /**
+     * 趋势跟踪，关注买入信号
+     */
+    @Test
+    public void trendTrackingTest(){
+        Analyzer analyzer = new Analyzer();
+        List<String> result = analyzer.trendTracking();
+        FileUtil.writeTxtFile("趋势向上",result,true);
     }
 
     // 效果不好

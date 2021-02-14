@@ -3,6 +3,7 @@ package com.zhs.analysis;
 import com.zhs.datasource.FileStockDailyData;
 import com.zhs.entities.dict.Boll;
 import com.zhs.utils.AnalysisUtil;
+import com.zhs.utils.FileUtil;
 import com.zhs.utils.PropertyUtil;
 import org.hibernate.collection.internal.PersistentList;
 import org.slf4j.Logger;
@@ -26,6 +27,37 @@ import java.util.*;
 
 public class Analyzer {
     private static final Logger logger = LoggerFactory.getLogger(Analyzer.class);
+
+    /**
+     * 趋势跟踪，观察买入信号
+     * @return
+     */
+    public List<String> trendTracking(){
+        List<String> results = new ArrayList<>();
+
+        AnalysisUtil analysisUtil = new AnalysisUtil();
+        List<String> files = FileUtil.getStockFilesWithFullPath();
+        for(String file:files){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+
+            // 趋势向上
+            //
+            boolean hit1 = analysisUtil.isTrendUpwards(baseBarSeries,31,10);
+            boolean hit2 = analysisUtil.isTrendUpwards(baseBarSeries,63,20);
+            boolean hit3 = analysisUtil.isTrendUpwards(baseBarSeries,250,40);
+            boolean isTrendUp = hit1 && hit2 && hit3;
+
+            int endIndex = baseBarSeries.getEndIndex();
+            Bar current = baseBarSeries.getBar(endIndex);
+            //float currentOpenPrice =
+
+            if(isTrendUp){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 
     /**
      * 获得移动平均线在指定天数内持续上升的股票
