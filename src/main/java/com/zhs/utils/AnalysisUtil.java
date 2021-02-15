@@ -22,8 +22,11 @@ import org.ta4j.core.num.Num;
 import java.util.*;
 
 public class AnalysisUtil {
-    // 计算指定BarSeries的KDJ指标。
-    //
+    /**
+     * 计算指定BarSeries的KDJ指标。
+     * @param barSeries
+     * @return
+     */
     public List<Kdj> calculationKdj(BarSeries barSeries){
         List<Kdj> kdjList = new ArrayList<>();
 
@@ -43,8 +46,12 @@ public class AnalysisUtil {
         return kdjList;
     }
 
-    // kd是否在50之下
-    //
+    /**
+     * 判断KD是否在指定的值之下。
+     * @param barSeries
+     * @param kdValue
+     * @return
+     */
     public boolean lowerKdj(BarSeries barSeries,float kdValue){
         StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
                 new StochasticOscillatorKIndicator(barSeries,9);
@@ -56,8 +63,11 @@ public class AnalysisUtil {
         return (kValue<=kdValue && dValue<=kdValue);
     }
 
-    // 计算所有指标，KDJ、MA，并返回Stock。
-    //
+    /**
+     * 计算所有指标，KDJ、MA，并返回Stock。
+     * @param barSeries
+     * @return
+     */
     public Stock getStock(BarSeries barSeries){
         Stock stock = new Stock(barSeries.getName());
         stock.setKdj(this.calculationKdj(barSeries));
@@ -65,8 +75,11 @@ public class AnalysisUtil {
         return stock;
     }
 
-    // 计算MA（移动平均线）
-    //
+    /**
+     * 计算MA（移动平均线）
+     * @param barSeries
+     * @return
+     */
     public List<MAs> calculationMAs(BarSeries barSeries){
         ClosePriceIndicator closeIndicator = new ClosePriceIndicator(barSeries);
         SMAIndicator smaIndicator5 = new SMAIndicator(closeIndicator,5);
@@ -291,7 +304,7 @@ public class AnalysisUtil {
     }
 
     /**
-     * 判断股价进入Boll低轨
+     * 判断最低价进入Boll低轨
      * @param barSeries
      * @return
      */
@@ -315,6 +328,11 @@ public class AnalysisUtil {
         }
     }
 
+    /**
+     * 判断最低价是否进入Boll中轨。
+     * @param barSeries
+     * @return
+     */
     public boolean isBollMid(BarSeries barSeries){
         ClosePriceIndicator closeIndicator = new ClosePriceIndicator(barSeries);
         SMAIndicator smaIndicator41 = new SMAIndicator(closeIndicator,41);
