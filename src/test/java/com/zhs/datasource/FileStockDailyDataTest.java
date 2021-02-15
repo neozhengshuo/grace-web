@@ -5,8 +5,6 @@ import com.zhs.utils.os.OsInfo;
 import org.junit.jupiter.api.Test;
 import org.ta4j.core.BaseBarSeries;
 
-import java.util.List;
-
 public class FileStockDailyDataTest {
     @Test
     public void loadMethodTest(){
