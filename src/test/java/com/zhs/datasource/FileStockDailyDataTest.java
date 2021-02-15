@@ -1,6 +1,7 @@
 package com.zhs.datasource;
 
 import com.zhs.entities.Stock;
+import com.zhs.utils.os.OsInfo;
 import org.junit.jupiter.api.Test;
 import org.ta4j.core.BaseBarSeries;
 
@@ -9,11 +10,12 @@ import java.util.List;
 public class FileStockDailyDataTest {
     @Test
     public void loadMethodTest(){
-//        List<?> result1 =  FileStockDailyData.load();
-//        System.out.println(result1.size());
-//        System.out.println("....");
-        BaseBarSeries barSeries = FileStockDailyData.load("SH#600019.txt");
-        System.out.println(barSeries.getBarCount());
+        if(OsInfo.isMacOSX()){
+            BaseBarSeries barSeries = FileStockDailyData.load("/Users/zhengshuo/IdeaProjects/grace-data/stock-files/SH#600019.txt");
+            System.out.println(barSeries.getBarCount());
+        }else if(OsInfo.isWindows()){
+            //...
+        }
     }
 
     @Test

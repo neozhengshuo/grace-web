@@ -39,39 +39,6 @@ public class FileStockDailyData {
                 .toFormatter();
     }
 
-    synchronized static public List<BaseBarSeries> load(){
-        logger.info("load start...");
-        if(stockDailyList == null){
-            stockDailyList = new ArrayList<BaseBarSeries>();
-            String source = PropertyUtil.getProperty("stock-daily-data");
-            File file = new File(source);
-            String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
-            logger.info("文件数量："+ fileNames.length);
-            for(String item:fileNames){
-                try(FileReader reader = new  FileReader(source+"\\"+item)){
-                    Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
-                    BaseBarSeries series = new BaseBarSeries(item);
-                    for(CSVRecord record:records){
-                        if(record.size()<7){
-                            continue;
-                        }
-                        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                        LocalDateTime dt = LocalDateTime.parse(record.get(0),FORMATTER);
-                        ZonedDateTime dateTime = ZonedDateTime.of(dt, ZoneId.systemDefault());
-                        logger.info("读取："+item+" "+ dateTime.toString());
-                        BaseBar bar = new BaseBar(Duration.ofDays(1),dateTime,record.get(1),record.get(2),record.get(3),record.get(4),record.get(5));
-
-                        series.addBar(bar);
-                    }
-                    stockDailyList.add(series);
-                }catch (IOException ex){
-                    logger.error(ex.getMessage());
-                }
-            }
-        }
-        return stockDailyList;
-    }
-
     static public BaseBarSeries load(String filePath){
         BaseBarSeries barSeries = new BaseBarSeries(filePath);;
 
