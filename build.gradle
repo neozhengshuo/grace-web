@@ -11,6 +11,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
+    implementation 'org.apache.poi:poi:3.17'
     implementation 'org.ta4j:ta4j-core:0.13'
     implementation 'org.apache.commons:commons-csv:1.5'
     implementation 'org.springframework.boot:spring-boot-starter-web'

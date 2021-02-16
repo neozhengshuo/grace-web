@@ -1,12 +1,14 @@
 package com.zhs.utils;
 
 import com.zhs.datasource.FileStockDailyData;
+import com.zhs.entities.Foreign;
 import com.zhs.utils.os.OsInfo;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -114,5 +116,18 @@ public class FileUtil {
         }
 
         return result;
+    }
+
+    /**
+     * 读取存有外资数据的Excel文件
+     * @param excelFile 需要读取的Excel文件（提供完整路径）
+     * @return
+     */
+    public static List<Foreign> readForeignExcel(String excelFile){
+        List<Foreign> foreignList = new ArrayList<>();
+
+
+
+        return foreignList;
     }
 }
