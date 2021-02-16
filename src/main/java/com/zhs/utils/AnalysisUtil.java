@@ -265,7 +265,7 @@ public class AnalysisUtil {
     }
 
     /**
-     * 判断J值是否在50以下上涨
+     * 判断J值是否在50以下上涨,同时前2天的J呈现下跌。
      * @param barSeries
      * @return
      */
@@ -278,9 +278,10 @@ public class AnalysisUtil {
 
         int currentIndex = barSeries.getEndIndex();
         float currentJ = j.getValue(currentIndex).floatValue();
-        float previousJ = j.getValue(currentIndex-1).floatValue();
+        float previous1J = j.getValue(currentIndex-1).floatValue();
+        float previous2J = j.getValue(currentIndex-1-1).floatValue();
 
-        return currentJ<=50 && currentJ>=previousJ;
+        return currentJ<=50 && currentJ>=previous1J && previous1J<=previous2J;
     }
 
     /**
