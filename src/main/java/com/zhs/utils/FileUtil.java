@@ -1,7 +1,11 @@
 package com.zhs.utils;
 
+import com.zhs.datasource.FileStockDailyData;
+import com.zhs.utils.os.OsInfo;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +13,9 @@ import java.util.Date;
 import java.util.List;
 
 public class FileUtil {
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+
+
     public static void writeTxtWithStockCodeList(String fileName, List<String> content,boolean openFile){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         Date date = new Date(System.currentTimeMillis());
@@ -41,8 +48,13 @@ public class FileUtil {
     public static void writeTxtFile(String fileName,List<String> stocksFileList,boolean openFile){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         Date date = new Date(System.currentTimeMillis());
-        String txtFile =
-                String.format("C:\\Users\\neozheng\\Desktop\\%s-%s.txt",fileName,simpleDateFormat.format(date));
+
+        String txtFile = null;
+        if(OsInfo.isWindows()){
+            txtFile = String.format("C:\\Users\\neozheng\\Desktop\\%s-%s.txt",fileName,simpleDateFormat.format(date));
+        }else if(OsInfo.isMacOSX()){
+            txtFile = String.format("/Users/zhengshuo/Desktop/%s-%s.txt",fileName,simpleDateFormat.format(date));
+        }
 
         FileWriter fileWriter = null;
         File file = new File(txtFile);
@@ -58,7 +70,11 @@ public class FileUtil {
             }
             fileWriter.close();
             if(openFile){
-                Runtime.getRuntime().exec("notepad "+txtFile);
+                if(OsInfo.isWindows()){
+                    Runtime.getRuntime().exec("notepad "+txtFile);
+                }else if(OsInfo.isMacOSX()){
+                    // Runtime.getRuntime().exec("/System/Applications/TextEdit.app "+txtFile);
+                }
             }
         }catch (Exception ex){
             ex.printStackTrace();

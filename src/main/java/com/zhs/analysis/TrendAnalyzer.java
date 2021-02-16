@@ -33,6 +33,7 @@ public class TrendAnalyzer {
     public void loadTrendUp(boolean showResultByTxtFile){
         for(String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
             boolean isHit1 = analysisUtil.isTrendUpwards(baseBarSeries,31,10);
             boolean isHit2 = analysisUtil.isTrendUpwards(baseBarSeries,63,20);
             boolean isHit3 = analysisUtil.isTrendUpwards(baseBarSeries,250,50);
