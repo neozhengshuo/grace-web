@@ -4,10 +4,7 @@ import com.zhs.datasource.FileStockDailyData;
 import com.zhs.entities.Foreign;
 import com.zhs.utils.os.OsInfo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -135,8 +132,7 @@ public class FileUtil {
 
         try{
             FileInputStream fileInputStream = new FileInputStream(excelFile);
-            Workbook wb = new HSSFWorkbook(fileInputStream);
-
+            Workbook wb = WorkbookFactory.create(fileInputStream);
             Sheet sheet = wb.getSheetAt(0);
             for (Row row : sheet){
                 if(row == null){
