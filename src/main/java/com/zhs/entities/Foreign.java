@@ -1,16 +1,46 @@
 package com.zhs.entities;
 
+import javax.persistence.*;
+
 /**
  * 表示外资每日的持股量。
  */
+@Entity
+@Table(name = "biz_foreign")
 public class Foreign {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+
+    @Column(name = "stock_code",length = 5)
     private String name;
+
+    @Column(name = "stock_name")
     private String code;
+
+    @Column(name = "year")
     private int year;
+
+    @Column(name = "month")
     private int month;
+
+    @Column(name = "day")
     private int day;
-    private float quantity;
-    private float percentage;
+
+    @Column(name = "quantity")
+    private double quantity;
+
+    @Column(name = "percentage")
+    private double percentage;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -52,19 +82,19 @@ public class Foreign {
         this.day = day;
     }
 
-    public float getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(float quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
-    public float getPercentage() {
+    public double getPercentage() {
         return percentage;
     }
 
-    public void setPercentage(float percentage) {
+    public void setPercentage(double percentage) {
         this.percentage = percentage;
     }
 }

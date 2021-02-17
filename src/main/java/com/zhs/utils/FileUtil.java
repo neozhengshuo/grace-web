@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -139,9 +140,15 @@ public class FileUtil {
                     continue;
                 }
                 Foreign foreign = new Foreign();
-                for(Cell cell : row){
-                    //cell.getStringCellValue()
-                }
+                foreign.setCode(Double.toString(row.getCell(0).getNumericCellValue()));
+                foreign.setName(row.getCell(1).getStringCellValue());
+                foreign.setQuantity(row.getCell(2).getNumericCellValue());
+                foreign.setPercentage(row.getCell(3).getNumericCellValue());
+
+                LocalDateTime localDateTime =row.getCell(4).getLocalDateTimeCellValue();
+                foreign.setYear(localDateTime.getYear());
+                foreign.setMonth(localDateTime.getMonthValue());
+                foreign.setDay(localDateTime.getDayOfMonth());
                 foreignList.add(foreign);
             }
         }catch (Exception ex){

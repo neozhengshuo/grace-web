@@ -41,6 +41,9 @@ public class Analyzer {
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
 
+            int endIndex = baseBarSeries.getEndIndex();
+            if(endIndex<5) continue;
+
             // 趋势向上(31MA,63MA,250MA)
             //
             boolean hit1 = analysisUtil.isTrendUpwards(baseBarSeries,31,10);
@@ -48,19 +51,30 @@ public class Analyzer {
             boolean hit3 = analysisUtil.isTrendUpwards(baseBarSeries,250,40);
             boolean isTrendUp = hit1 && hit2 && hit3;
 
-            // 判断股价进入Boll中轨
-            //
-            // ...
-
             // 判断前两天的收盘价持续下跌，但当天上涨
             //
-            int endIndex = baseBarSeries.getEndIndex();
             Bar currentBar = baseBarSeries.getBar(endIndex);
             Bar dayAgo1Bar = baseBarSeries.getBar(endIndex-1);
             Bar dayAgo2Bar = baseBarSeries.getBar(endIndex-1-1);
-            float currentOpenPrice = currentBar.getClosePrice().floatValue();
+            float currentOpenPrice = currentBar.getOpenPrice().floatValue();
+            float currentClosePrice = currentBar.getClosePrice().floatValue();
+            float dayAgo1ClosePrice = dayAgo1Bar.getClosePrice().floatValue();
+            float dayAgo2ClosePrice = dayAgo2Bar.getClosePrice().floatValue();
+            boolean isPriceUp = currentClosePrice>=currentOpenPrice && dayAgo1ClosePrice<=dayAgo2ClosePrice;
 
-            if(isTrendUp){
+            // 判断股价进入Boll中轨
+            //
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(baseBarSeries);
+            SMAIndicator sma_31_indicator = new SMAIndicator(closePriceIndicator,31);
+            StandardDeviationIndicator stdIndicator = new StandardDeviationIndicator(closePriceIndicator,31);
+            BollingerBandsMiddleIndicator mb_indicator = new BollingerBandsMiddleIndicator(sma_31_indicator);
+            BollingerBandsLowerIndicator low_indicator = new BollingerBandsLowerIndicator(mb_indicator,stdIndicator);
+            BollingerBandsUpperIndicator upper_indicator = new BollingerBandsUpperIndicator(mb_indicator,stdIndicator);
+            float currentLowPrice = currentBar.getLowPrice().floatValue();
+            float bollMid = mb_indicator.getValue(endIndex).floatValue();
+            boolean isInMid = currentLowPrice<=bollMid;
+
+            if(isTrendUp && isInMid && isPriceUp){
                 results.add(file);
             }
         }
