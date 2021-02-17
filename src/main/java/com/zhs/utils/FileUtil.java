@@ -3,11 +3,18 @@ package com.zhs.utils;
 import com.zhs.datasource.FileStockDailyData;
 import com.zhs.entities.Foreign;
 import com.zhs.utils.os.OsInfo;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,7 +109,7 @@ public class FileUtil {
 
     /**
      * 获取所有的股票文件（含路径）
-     * @return
+     * @return 文件列表
      */
     public static List<String> getStockFilesWithFullPath(){
         List<String> result = new ArrayList<>();
@@ -121,12 +128,30 @@ public class FileUtil {
     /**
      * 读取存有外资数据的Excel文件
      * @param excelFile 需要读取的Excel文件（提供完整路径）
-     * @return
+     * @return Foreign列表
      */
-    public static List<Foreign> readForeignExcel(String excelFile){
+    public static List<Foreign> readForeignExcel(String excelFile) throws IOException {
         List<Foreign> foreignList = new ArrayList<>();
 
+        try{
+            FileInputStream fileInputStream = new FileInputStream(excelFile);
+            Workbook wb = new HSSFWorkbook(fileInputStream);
 
+            Sheet sheet = wb.getSheetAt(0);
+            for (Row row : sheet){
+                if(row == null){
+                    continue;
+                }
+                Foreign foreign = new Foreign();
+                for(Cell cell : row){
+                    //cell.getStringCellValue()
+                }
+                foreignList.add(foreign);
+            }
+        }catch (Exception ex){
+            logger.error(ex.getMessage());
+            throw ex;
+        }
 
         return foreignList;
     }
