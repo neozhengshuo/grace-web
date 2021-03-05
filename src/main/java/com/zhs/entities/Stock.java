@@ -4,6 +4,7 @@ import java.util.List;
 
 public class Stock {
     private String code;
+    private String name;
     private List<MAs> mas;
     private List<Kdj> kdj;
 
@@ -13,6 +14,14 @@ public class Stock {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<Kdj> getKdj() {
@@ -47,5 +56,25 @@ public class Stock {
             return mas.size();
         else
             return Math.max(mas.size(), kdj.size());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        Stock stock = (Stock)obj;
+        if(this == stock){
+            return true;
+        }else{
+            return (this.code.equals(stock.code));
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hashno = 7;
+        hashno = 13*hashno+(code == null?0:code.hashCode());
+        return hashno;
     }
 }
