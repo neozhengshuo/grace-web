@@ -19,7 +19,7 @@ public class TrendAnalyzerTest {
 
     @Test
     public void getBollMidTest(){
-        List<String> results = trendAnalyzer.getBollMid();
+        List<String> results = trendAnalyzer.getTrendUpBollMid();
 
         FileUtil.writeTxtFile("趋势向上-布林中轨",results,true);
         results.forEach(System.out::println);
@@ -28,7 +28,7 @@ public class TrendAnalyzerTest {
 
     @Test
     public void getKDJTest(){
-        List<String> results = trendAnalyzer.getKDJ();
+        List<String> results = trendAnalyzer.getJLow(50);
 
         FileUtil.writeTxtFile("趋势向上-J值上涨",results,true);
         results.forEach(System.out::println);

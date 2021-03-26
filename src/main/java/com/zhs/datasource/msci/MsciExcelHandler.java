@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +26,31 @@ public class MsciExcelHandler {
         return codeAndNameList.stream().distinct().collect(Collectors.toList());
     }
 
-    public static List<String[]> extractStockCodeAndName(String excelDirPath) throws IOException {
+    public static String writeMsciStockToTxtFile(String outputDir,List<String[]> codeNameList) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        Date date = new Date(System.currentTimeMillis());
+        String txtFile = String.format(outputDir+"/msci-%s.txt",simpleDateFormat.format(date));
+
+        FileWriter fileWriter = null;
+        File file = new File(txtFile);
+        try{
+            if(!file.exists()){
+                if(file.createNewFile()){
+                    fileWriter = new FileWriter(txtFile);
+                    for (String[] item:codeNameList){
+                        fileWriter.write(String.format("%s\r\n",item[0]));
+                    }
+                    fileWriter.close();
+                }
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw e;
+        }
+        return  txtFile;
+    }
+
+    private static List<String[]> extractStockCodeAndName(String excelDirPath) throws IOException {
         List<String[]> codeAndNameList = new ArrayList<>();
         try{
             File file = new File(excelDirPath);

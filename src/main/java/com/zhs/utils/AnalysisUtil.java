@@ -1,15 +1,21 @@
 package com.zhs.utils;
 
+import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.entities.Kdj;
 import com.zhs.entities.MAs;
 import com.zhs.entities.Stock;
+import com.zhs.entities.dict.KStickPosition;
+import com.zhs.entities.dict.MovingAverage;
 import com.zhs.indicator.DIndicator;
 import com.zhs.indicator.JIndicator;
 import com.zhs.indicator.KIndicator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
+import org.ta4j.core.indicators.StochasticOscillatorDIndicator;
 import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
 import org.ta4j.core.indicators.bollinger.BollingerBandsLowerIndicator;
 import org.ta4j.core.indicators.bollinger.BollingerBandsMiddleIndicator;
@@ -22,6 +28,9 @@ import org.ta4j.core.num.Num;
 import java.util.*;
 
 public class AnalysisUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(AnalysisUtil.class);
+
     /**
      * 计算指定BarSeries的KDJ指标。
      * @param barSeries
@@ -106,7 +115,7 @@ public class AnalysisUtil {
     }
 
     /**
-     * 判断某均线是否在指定的天数内持续向上
+     * 判断某均线是否在指定的天数内持续向上,且大于年线（MA250）
      * @param barSeries 指定待分析的序列
      * @param ma 移动平均线
      * @param continued 持续天数
@@ -121,16 +130,453 @@ public class AnalysisUtil {
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
 
         SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma);
-        for(int i = barCount-1;i>barCount-continued;i--){
+        SMAIndicator ma250Indicator = new SMAIndicator(closePriceIndicator, MovingAverage.MA250.getMaValue());
+        for(int i = barCount-1;i>=barCount-continued;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
             float beforeSMA = smaIndicator.getValue(i-1).floatValue();
-            if(currentSMA<=beforeSMA){
+            float ma250Value = ma250Indicator.getValue(i).floatValue();
+            if(currentSMA<beforeSMA || currentSMA<ma250Value){
                 isUp = false;
                 break;
             }
         }
         return isUp;
     }
+
+    /**
+     * 趋势向上（MA63），且MA31在MA63之上，且MA31和MA63在MA250之上
+     * @param barSeries
+     * @param continued
+     * @return
+     */
+    public boolean isTrendUpward_MA63(BarSeries barSeries,int continued){
+        boolean hit = true;
+        int barCount = barSeries.getBarCount();
+        if(barCount<continued) return false;
+
+        ClosePriceIndicator closeIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma31_indicator = new SMAIndicator(closeIndicator,MovingAverage.MA31.getMaValue());
+        SMAIndicator ma63_indicator = new SMAIndicator(closeIndicator,MovingAverage.MA63.getMaValue());
+        SMAIndicator ma250_indicator = new SMAIndicator(closeIndicator,MovingAverage.MA250.getMaValue());
+        for (int i = barCount-1;i>=barCount-continued;i--){
+            float ma31_value = ma31_indicator.getValue(i).floatValue();
+            float ma63_current_value = ma63_indicator.getValue(i).floatValue();
+            float ma63_prov1_value = ma63_indicator.getValue(i-1).floatValue();
+            float ma250_value = ma250_indicator.getValue(i).floatValue();
+            if(ma63_current_value < ma63_prov1_value || ma31_value < ma63_current_value || ma63_current_value < ma250_value){
+                hit = false;
+                break;
+            }
+        }
+
+        return hit;
+    }
+
+    /**
+     * 判断最近3天任何1天的成交量大于63MA
+     * @param barSeries barSeries
+     * @param ma ma
+     * @return 是否满足条件
+     */
+    public boolean isVolumeMoveThen(BarSeries barSeries,MovingAverage ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<ma.getMaValue()) return false;
+
+        boolean hit = false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(volumeIndicator,ma.getMaValue());
+
+        int current_volume = barSeries.getBar(endIndex).getVolume().intValue();
+        int current_ma_volume = smaIndicator.getValue(endIndex).intValue();
+
+        int prev1_volume = barSeries.getBar(endIndex-1).getVolume().intValue();
+        int prev1_ma_volume = smaIndicator.getValue(endIndex-1).intValue();
+
+        int prev2_volume = barSeries.getBar(endIndex-1).getVolume().intValue();
+        int prev2_ma_volume = smaIndicator.getValue(endIndex-1).intValue();
+
+        hit = current_volume>=current_ma_volume || prev1_volume>=prev1_ma_volume || prev2_volume>=prev2_ma_volume;
+
+        return hit;
+    }
+
+    /**
+     * 判断当前收盘价是否大于指定的均线
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean isClosePriceMoveThen(BarSeries barSeries,MovingAverage ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<ma.getMaValue()) return false;
+
+        boolean hit = false;
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        float current_close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float ma_close_price = smaIndicator.getValue(endIndex).floatValue();
+        hit = current_close_price>=ma_close_price;
+
+        return hit;
+    }
+
+    /**
+     * 判断是否出现KD金叉
+     * @param barSeries
+     * @return
+     */
+    public boolean isKdCrossUp(BarSeries barSeries){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<3) return hit;
+
+        StochasticOscillatorKIndicator k = new StochasticOscillatorKIndicator(barSeries,9);
+        StochasticOscillatorDIndicator d = new StochasticOscillatorDIndicator(k);
+
+        float current_k = k.getValue(endIndex).floatValue();
+        float current_d = d.getValue(endIndex).floatValue();
+        float prev1_k = k.getValue(endIndex-1).floatValue();
+        float prev1_d = d.getValue(endIndex-1).floatValue();
+        float prev2_k = k.getValue(endIndex-1-1).floatValue();
+        float prev2_d = d.getValue(endIndex-1-1).floatValue();
+
+        boolean hit1 = current_k >= current_d && prev2_k <= prev2_d;
+        boolean hit2 = current_k >= current_d && prev1_k <= prev1_d;
+        boolean hit3 = prev1_k >= prev1_d && prev2_k <+ prev2_d;
+
+        hit = hit1 || hit2 || hit3;
+        return hit;
+    }
+
+    /**
+     * 判断当前K值是否大于前一日的K值,且J值在K值的下面
+     * @param barSeries
+     * @return
+     */
+    public boolean is_k_or_j_up(BarSeries barSeries){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<3) return hit;
+
+        StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
+                new StochasticOscillatorKIndicator(barSeries,9);
+        KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
+        DIndicator d = new DIndicator(k);
+        JIndicator j = new JIndicator(k,d);
+
+        float current_k = k.getValue(endIndex).floatValue();
+        float prev1_k = k.getValue(endIndex-1).floatValue();
+        float prev1_j = j.getValue(endIndex-1).floatValue();
+
+        hit = (current_k>=prev1_k && prev1_j <= prev1_k);
+        return hit;
+    }
+
+    /**
+     * 均线纠结
+     * @param barSeries
+     * @param period 周期，在指定的交易日内进行判断
+     * @param frequency 满足条件的次数（多周期均线在最高价和最低价之间）。
+     * @return
+     */
+    public boolean is_moving_average_tangled(BarSeries barSeries,int period,int frequency){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<63 || endIndex<period || period<frequency) return false;
+
+        ClosePriceIndicator closeIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma1Indicator = new SMAIndicator(closeIndicator,MovingAverage.MA11.getMaValue());
+        SMAIndicator ma2Indicator = new SMAIndicator(closeIndicator,MovingAverage.MA18.getMaValue());
+        SMAIndicator ma3Indicator = new SMAIndicator(closeIndicator,MovingAverage.MA31.getMaValue());
+        SMAIndicator ma4Indicator = new SMAIndicator(closeIndicator,MovingAverage.MA63.getMaValue());
+
+        int count = 0;
+        for (int i = endIndex;i>endIndex-period;i--){
+            float ma1_val = ma1Indicator.getValue(i).floatValue();
+            float ma2_val = ma2Indicator.getValue(i).floatValue();
+            float ma3_val = ma3Indicator.getValue(i).floatValue();
+            float ma4_val = ma4Indicator.getValue(i).floatValue();
+            float highPrice = barSeries.getBar(i).getHighPrice().floatValue();
+            float lowPrice = barSeries.getBar(i).getLowPrice().floatValue();
+
+            boolean hit1 = highPrice>=ma1_val && highPrice >= ma2_val && highPrice >= ma3_val && highPrice >= ma4_val;
+            boolean hit2 = lowPrice <= ma1_val && lowPrice <= ma2_val && lowPrice <= ma3_val && lowPrice <= ma4_val;
+            if(hit1 && hit2){
+                count++;
+            }
+        }
+        if(count>=frequency){
+            hit = true;
+        }
+        return hit;
+    }
+
+    /**
+     * boll走平
+     * @param barSeries
+     * @param continued 持续天数
+     * @param rate 波动率，取值在1以下比较合适。
+     * @return
+     */
+    public boolean is_boll_parallel(BarSeries barSeries,int continued,float rate){
+        boolean hit = true;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<continued) return false;
+
+        ClosePriceIndicator closeIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator41 = new SMAIndicator(closeIndicator,31);
+        StandardDeviationIndicator stdIndicator = new StandardDeviationIndicator(closeIndicator,31);
+
+        BollingerBandsMiddleIndicator mb = new BollingerBandsMiddleIndicator(smaIndicator41);
+        BollingerBandsUpperIndicator up = new BollingerBandsUpperIndicator(mb,stdIndicator,barSeries.numOf(2));
+        BollingerBandsLowerIndicator low = new BollingerBandsLowerIndicator(mb,stdIndicator,barSeries.numOf(2));
+
+        float fixed_up_val = 0;
+        float fixed_low_val = 0;
+        for (int i = endIndex;i>endIndex-continued;i--){
+            if(i == endIndex){
+                fixed_up_val = up.getValue(i).floatValue();
+                fixed_low_val = low.getValue(i).floatValue();
+            }
+
+            float up_val2 = up.getValue(i-1).floatValue();
+            float up_r = Math.abs((up_val2-fixed_up_val)/fixed_up_val*100);
+            float low_val2 = low.getValue(i-1).floatValue();
+            float low_r = Math.abs((low_val2-fixed_low_val)/fixed_low_val*100);
+            if(low_r>rate ){
+                hit = false;
+                break;
+            }
+        }
+
+        return hit;
+    }
+
+
+    /**
+     * 量缩价稳。计算逻辑：取一定天数内每天的最低价，计算每天最低价相对于前一天的浮动率，且每日量能小于5日均量，且红K大于绿K。
+     * @param barSeries barSeries
+     * @param continued 持续的天数
+     * @param floatingRate 最低价的浮动率（一般取值在0.5之间）
+     * @return 是否符合条件
+     */
+    public boolean is_volume_shrink_price_stable(BarSeries barSeries,int continued, float floatingRate){
+        boolean hit = true;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<continued) return false;
+
+        int redCount = 0;
+        int greenCount = 0;
+
+        VolumeIndicator volIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(volIndicator,5);
+        float absVal = 0F;
+        for (int i = endIndex-continued;i<=endIndex-1;i++) {
+            if(i == endIndex-continued){
+                absVal = barSeries.getBar(i).getLowPrice().floatValue();
+            }
+
+            float lowPrice = barSeries.getBar(i+1).getLowPrice().floatValue();
+            float vol = barSeries.getBar(i+1).getVolume().floatValue();
+            float vol_ma = smaIndicator.getValue(i+1).floatValue();
+            float result = Math.abs((lowPrice-absVal)/lowPrice*100);
+            if(result>floatingRate ){
+                hit = false;
+                break;
+            }
+
+            float closePrice = barSeries.getBar(i+1).getClosePrice().floatValue();
+            float openPrice = barSeries.getBar(i+1).getOpenPrice().floatValue();
+            if(closePrice>=openPrice){
+                redCount++;
+            }else{
+                greenCount++;
+            }
+        }
+        if(hit){
+            if(redCount<greenCount){
+                hit = false;
+            }
+        }
+        return hit;
+    }
+
+    /**
+     * 判断均线的平滑度。在一定天数内某均线浮动率是否符合指定的参数。<br/>
+     * 均线约平滑，说明均线纠结的可能性越大。短周期均线最为敏感。
+     * @param barSeries
+     * @param ma
+     * @param continued
+     * @param floatingRate
+     * @return
+     */
+    public boolean is_moving_average_smooth(BarSeries barSeries,MovingAverage ma,int continued, float floatingRate){
+        boolean hit = true;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<continued) return false;
+
+        int redCount = 0;
+        int greenCount = 0;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma_indicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+        float absMa = 0F;
+        for (int i = endIndex-continued;i<=endIndex-1;i++) {
+            if(i == endIndex-continued){
+                absMa = ma_indicator.getValue(i).floatValue();
+            }
+
+            float maVal = ma_indicator.getValue(i+1).floatValue();
+            float result = Math.abs((maVal-absMa)/maVal*100);
+            if(result>floatingRate ){
+                hit = false;
+                break;
+            }
+        }
+        return hit;
+    }
+
+    /**
+     * 最低价是否来的指定均线的下方
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean is_price_under_ma(BarSeries barSeries,MovingAverage ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma_indicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        Bar endBar = barSeries.getBar(endIndex);
+        float open = endBar.getOpenPrice().floatValue();
+        float close = endBar.getClosePrice().floatValue();
+        float high = endBar.getHighPrice().floatValue();
+        float low = endBar.getLowPrice().floatValue();
+        float ma_val = ma_indicator.getValue(endIndex).floatValue();
+
+        boolean hit1 = low<=ma_val;
+        boolean hit2 = open>=ma_val || close >= ma_val || high >= ma_val;
+        return hit1 && hit2;
+    }
+
+    public boolean is_price_between_ma(BarSeries barSeries,MovingAverage upperMa,MovingAverage lowerMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator upper_ma_indicator = new SMAIndicator(closePriceIndicator,upperMa.getMaValue());
+        SMAIndicator lower_ma_indicator = new SMAIndicator(closePriceIndicator,lowerMa.getMaValue());
+
+        Bar endBar = barSeries.getBar(endIndex);
+        float open = endBar.getOpenPrice().floatValue();
+        float close = endBar.getClosePrice().floatValue();
+        float high = endBar.getHighPrice().floatValue();
+        float low = endBar.getLowPrice().floatValue();
+        float upper_ma_val = upper_ma_indicator.getValue(endIndex).floatValue();
+        float lower_ma_val = lower_ma_indicator.getValue(endIndex).floatValue();
+
+        boolean hit1 = close<=upper_ma_val;
+        boolean hit2 = close>=lower_ma_val;
+        return hit1 && hit2;
+    }
+
+    /**
+     * 量缩价跌（最好连续2-3日），且价在31MA中间收红K
+     * @param barSeries
+     * @return
+     */
+    public boolean is_vol_price_low(BarSeries barSeries,int continued,MovingAverage ma){
+        boolean hit = true;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<continued+1) return false;
+
+        for (int i = endIndex;i>endIndex-continued;i--){
+            float price1 = barSeries.getBar(i).getClosePrice().floatValue();
+            float price2 = barSeries.getBar(i-1).getClosePrice().floatValue();
+
+            float vol1 = barSeries.getBar(i).getVolume().floatValue();
+            float vol2 = barSeries.getBar(i-1).getVolume().floatValue();
+
+            if(price1>price2 || vol1>vol2){
+                hit = false;
+                break;
+            }
+        }
+
+        if(hit){
+            ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+            SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+            float current_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
+            float ma_value = smaIndicator.getValue(endIndex).floatValue();
+            hit = current_price>=ma_value;
+        }
+
+        return hit;
+    }
+
+    /**
+     * 判断开盘价或最低价是否小于31MA
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean isOpenPriceLowerPriceLessThan(BarSeries barSeries,MovingAverage ma){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<3) return hit;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+        float current_open_price = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        float current_lower_price = barSeries.getBar(endIndex).getLowPrice().floatValue();
+
+        hit = current_open_price<=smaIndicator.getValue(endIndex).floatValue() || current_lower_price <= smaIndicator.getValue(endIndex).floatValue();
+        return hit;
+    }
+
+    /**
+     * 最近三天最低价或收盘价在31MA之下，但当天收盘价在MA31上方
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean isClosePriceLowerPriceLessThan(BarSeries barSeries,MovingAverage ma){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<3) return hit;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        float current_close = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float prev1_close = barSeries.getBar(endIndex-1).getClosePrice().floatValue();
+        float prev2_close = barSeries.getBar(endIndex-1-1).getClosePrice().floatValue();
+        float prev3_close = barSeries.getBar(endIndex-1-1-1).getClosePrice().floatValue();
+
+        float current_lower = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        float prev1_lower = barSeries.getBar(endIndex-1).getLowPrice().floatValue();
+        float prev2_lower = barSeries.getBar(endIndex-1-1).getLowPrice().floatValue();
+        float prev3_lower = barSeries.getBar(endIndex-1-1-1).getLowPrice().floatValue();
+
+        float current_ma = smaIndicator.getValue(endIndex).floatValue();
+        float prev1_ma = smaIndicator.getValue(endIndex-1).floatValue();
+        float prev2_ma = smaIndicator.getValue(endIndex-1-1).floatValue();
+        float prev3_ma = smaIndicator.getValue(endIndex-1-1-1).floatValue();
+
+        boolean hit1 = prev1_close <= prev1_ma || prev1_lower <= prev1_ma;
+        boolean hit2 = prev2_close <= prev2_ma || prev2_lower <= prev2_ma;
+        boolean hit3 = prev3_close <= prev3_ma || prev3_lower <= prev3_ma;
+
+        boolean hit4 = current_close >= current_ma;
+
+        hit = (hit1 || hit2 || hit3) && hit4;
+
+        return hit;
+    }
+
 
 
     /**
@@ -229,16 +675,6 @@ public class AnalysisUtil {
             }
         }
         return hit;
-
-//        // 判断当天量
-//        for(int i = endIndex;i>inDays-endIndex;i--){
-//            float ma5_volume = volumeIndicator.getValue(i).floatValue();
-//            float ma63_volume = volumeIndicator.getValue(i).floatValue();
-//            if(current_volume<ma5_volume && current_volume<ma63_volume){
-//                hit = false;
-//                break;
-//            }
-//        }
     }
 
     /**
@@ -282,6 +718,34 @@ public class AnalysisUtil {
         float previous2J = j.getValue(currentIndex-1-1).floatValue();
 
         return currentJ<=50 && currentJ>=previous1J && previous1J<=previous2J;
+    }
+
+    /**
+     * 判断J值是否在指定的值以下
+     * @param barSeries
+     * @param jValue
+     * @return
+     */
+    public boolean isJLower(BarSeries barSeries,float jValue){
+        // k快，d慢，j最快
+//        StochasticOscillatorDIndicator
+//        StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
+//                new StochasticOscillatorKIndicator(barSeries,9);
+//        KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
+//        DIndicator d = new DIndicator(k);
+//        JIndicator j = new JIndicator(k,d);
+
+        StochasticOscillatorKIndicator k = new StochasticOscillatorKIndicator(barSeries,9);
+        StochasticOscillatorDIndicator d = new StochasticOscillatorDIndicator(k);
+        JIndicator j = new JIndicator(k,d);
+        boolean hit = false;
+
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex>0){
+            float currentJ = j.getValue(endIndex).floatValue();
+            hit = currentJ<jValue;
+        }
+        return hit;
     }
 
     /**
@@ -350,5 +814,126 @@ public class AnalysisUtil {
             return currentLowPrice<=currentBollMid;
         }
         return false;
+    }
+
+    /**
+     * 判断是否为长K棒,如果是长红K，判断长红K以后交易日价有没有跌破长红K的一半。
+     * @param barSeries
+     * @return
+     */
+    public boolean is_long_k_stick(BarSeries barSeries, float multiple,int withInDays, KStickPosition kStickPosition){
+
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=1) return false;
+
+        VolumeIndicator vol_Indicator = new VolumeIndicator(barSeries);
+        SMAIndicator ma5_vol_indicator = new SMAIndicator(vol_Indicator,5);
+        SMAIndicator ma63_vol_indicator = new SMAIndicator(vol_Indicator,63);
+        int long_k_start_index = 0;
+        for(int i = endIndex;i>0;i--){
+            float current_open = barSeries.getBar(i).getOpenPrice().floatValue();
+            float current_close = barSeries.getBar(i).getClosePrice().floatValue();
+            float current_high = barSeries.getBar(i).getHighPrice().floatValue();
+            float current_low = barSeries.getBar(i).getLowPrice().floatValue();
+            float current_vol = barSeries.getBar(i).getVolume().floatValue();
+            float current_ma5_vol = ma5_vol_indicator.getValue(i).floatValue();
+            float current_ma63_vol = ma63_vol_indicator.getValue(i).floatValue();
+
+            float prev1_open = barSeries.getBar(i-1).getOpenPrice().floatValue();
+            float prev1_close = barSeries.getBar(i-1).getClosePrice().floatValue();
+            float prev1_high = barSeries.getBar(i-1).getHighPrice().floatValue();
+            float prev1_low = barSeries.getBar(i-1).getLowPrice().floatValue();
+
+
+
+            if(current_close>current_open && prev1_close<current_close && current_high>prev1_high && current_vol>=current_ma5_vol){
+                float current_spread = (current_close-current_open);
+                float prev1_spread = Math.abs(prev1_close-prev1_open);
+                float m_multiple = current_spread/prev1_spread;
+                boolean hit1 = m_multiple>multiple;
+                boolean hit2 = (endIndex-i)<withInDays;
+                if(hit1 && hit2){
+                    hit = true;
+                    long_k_start_index = i;
+                    break;
+                }
+            }
+        }
+
+        if(hit){
+            float open = barSeries.getBar(long_k_start_index).getOpenPrice().floatValue();
+            float close = barSeries.getBar(long_k_start_index).getClosePrice().floatValue();
+            for (int j = long_k_start_index+1;j<=endIndex;j++){
+                if(close>open){
+                    if(kStickPosition == KStickPosition.HALF){
+                        float spread = (close-open)/2;
+                        float weaken = close-spread;
+                        float next1 = barSeries.getBar(j).getClosePrice().floatValue();
+                        if(next1<weaken){
+                            hit = false;
+                            break;
+                        }
+                    }
+                    if(kStickPosition == KStickPosition.CLOSE){
+                        float next1 = barSeries.getBar(j).getClosePrice().floatValue();
+                        if(next1<close){
+                            hit = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(hit){
+            logger.info(String.format("%s-%s",barSeries.getName(),barSeries.getBar(long_k_start_index).getDateName()));
+        }
+        return hit;
+    }
+
+    /**
+     * 严格的长红K棒
+     * @param barSeries
+     * @param multiple 指定长红K是前面K棒的倍数。
+     * @return
+     */
+    public boolean is_strict_long_k_stick(BarSeries barSeries,float multiple){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=1) return false;
+
+        VolumeIndicator vol_Indicator = new VolumeIndicator(barSeries);
+        SMAIndicator ma5_vol_indicator = new SMAIndicator(vol_Indicator,5);
+        SMAIndicator ma63_vol_indicator = new SMAIndicator(vol_Indicator,63);
+        int long_k_start_index = 0;
+        for(int i = endIndex;i>0;i--){
+            float current_open = barSeries.getBar(i).getOpenPrice().floatValue();
+            float current_close = barSeries.getBar(i).getClosePrice().floatValue();
+            float current_high = barSeries.getBar(i).getHighPrice().floatValue();
+            float current_low = barSeries.getBar(i).getLowPrice().floatValue();
+            float current_vol = barSeries.getBar(i).getVolume().floatValue();
+            float current_ma5_vol = ma5_vol_indicator.getValue(i).floatValue();
+            float current_ma63_vol = ma63_vol_indicator.getValue(i).floatValue();
+
+            float prev1_open = barSeries.getBar(i-1).getOpenPrice().floatValue();
+            float prev1_close = barSeries.getBar(i-1).getClosePrice().floatValue();
+            float prev1_high = barSeries.getBar(i-1).getHighPrice().floatValue();
+            float prev1_low = barSeries.getBar(i-1).getLowPrice().floatValue();
+
+            if(current_close>current_open && prev1_close<current_close && current_high>prev1_high){
+                float current_spread = (current_close-current_open);
+                float prev1_spread = Math.abs(prev1_close-prev1_open);
+                float m_multiple = current_spread/prev1_spread;
+                boolean hit1 = m_multiple>multiple;
+                boolean hit2 = (endIndex-i)<8;
+                if(hit1 && hit2){
+                    hit = true;
+                    long_k_start_index = i;
+                    logger.info(String.format("%s-%s",barSeries.getName(),barSeries.getBar(long_k_start_index).getDateName()));
+                    break;
+                }
+            }
+        }
+        return hit;
     }
 }

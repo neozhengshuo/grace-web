@@ -55,10 +55,11 @@ public class FileUtil {
     public static void writeTxtFile(String fileName,List<String> stocksFileList,boolean openFile){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         Date date = new Date(System.currentTimeMillis());
+        String outputPath = PropertyUtil.getProperty("analysis-result-output");
 
         String txtFile = null;
         if(OsInfo.isWindows()){
-            txtFile = String.format("C:\\Users\\neozheng\\Desktop\\%s-%s.txt",fileName,simpleDateFormat.format(date));
+            txtFile = String.format("%s/%s-%s.txt",outputPath,simpleDateFormat.format(date),fileName);
         }else if(OsInfo.isMacOSX()){
             txtFile = String.format("/Users/zhengshuo/Desktop/%s-%s.txt",fileName,simpleDateFormat.format(date));
         }
@@ -89,6 +90,17 @@ public class FileUtil {
     }
 
     /**
+     * 打开指定的文本文件
+     * @param filePath 文本文件路径
+     * @throws IOException 异常
+     */
+    public static void openTxt(String filePath) throws IOException {
+        if(OsInfo.isWindows()){
+            Runtime.getRuntime().exec("notepad "+filePath);
+        }
+    }
+
+    /**
      * 获取文件的完整路径
      * @param fileNames 要获取完整路径的文件列表
      * @return 文件完整路径列表
@@ -111,15 +123,12 @@ public class FileUtil {
      */
     public static List<String> getStockFilesWithFullPath(){
         List<String> result = new ArrayList<>();
-
         String source = PropertyUtil.getProperty("stock-daily-data");
         File file = new File(source);
         String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
-
         for(String name:fileNames){
             result.add(source + "/" + name);
         }
-
         return result;
     }
 
