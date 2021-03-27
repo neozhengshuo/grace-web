@@ -678,7 +678,7 @@ public class AnalysisUtil {
     }
 
     /**
-     * 判断指定的序列是否出现金叉向上
+     * 判断指定的序列是否出现KD金叉向上
      * @param barSeries 指定的序列
      * @return 是或否
      */
@@ -698,6 +698,21 @@ public class AnalysisUtil {
         float previous2D = d.getValue(currentIndex-1-1).floatValue();
 
         return (previousK<=previousD && currentK>=currentD) || (previous2K<=previous2D && previousK>=previousD);
+    }
+
+    /**
+     * 判断指定的两条均线是否出现金叉（短周期均线应该从下往上穿过长周期均线）
+     * @param barSeries
+     * @return
+     */
+    public boolean is_ma_gold_cross(BarSeries barSeries, MovingAverage shortMa,MovingAverage longMa){
+        boolean hit = false;
+
+        ClosePriceIndicator close_indicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator short_ma_indicator = new SMAIndicator(close_indicator,shortMa.getMaValue());
+        SMAIndicator long_ma_indicator = new SMAIndicator(close_indicator,longMa.getMaValue());
+
+        return hit;
     }
 
     /**
@@ -819,6 +834,9 @@ public class AnalysisUtil {
     /**
      * 判断是否为长K棒,如果是长红K，判断长红K以后交易日价有没有跌破长红K的一半。
      * @param barSeries
+     * @param multiple 指定当前K棒的实体是前一天K棒的倍数
+     * @param withInDays 指定多少天内价没有跌破K的哪个位置。
+     * @param kStickPosition 指定价在K棒的位置，表示特定的天数内价没有跌破该位置。
      * @return
      */
     public boolean is_long_k_stick(BarSeries barSeries, float multiple,int withInDays, KStickPosition kStickPosition){

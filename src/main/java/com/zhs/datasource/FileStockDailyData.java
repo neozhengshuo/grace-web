@@ -5,6 +5,7 @@ import com.zhs.entities.dict.StockGroup;
 import com.zhs.utils.AnalysisUtil;
 import com.zhs.utils.FileUtil;
 import com.zhs.utils.PropertyUtil;
+import com.zhs.utils.os.OsInfo;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.poi.ss.usermodel.*;
@@ -206,7 +207,13 @@ public class FileStockDailyData {
 
     public static List<String> getStockFilesWithFullPath(){
         List<String> result = new ArrayList<>();
-        String source = PropertyUtil.getProperty("stock-daily-data");
+        String source = null;
+        if (OsInfo.isMacOSX()){
+            source = PropertyUtil.getProperty("stock-daily-data-macos");
+        }else if (OsInfo.isWindows()){
+            source = PropertyUtil.getProperty("stock-daily-data");
+        }
+
         File file = new File(source);
         String[] fileNames = file.list((dir,name)->name.endsWith(".txt"));
         for(String name:fileNames){
