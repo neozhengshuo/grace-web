@@ -1,6 +1,7 @@
 package com.zhs.analysis;
 
 import com.zhs.datasource.FileStockDailyData;
+import com.zhs.entities.StockFeatures;
 import com.zhs.entities.dict.KStickPosition;
 import com.zhs.entities.dict.MovingAverage;
 import com.zhs.utils.AnalysisUtil;
@@ -280,6 +281,19 @@ public class TrendAnalyzer {
         return results;
     }
 
+    public List<String> get_is_price_up_ma(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_price_up_ma(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
     public List<String> get_is_price_between_ma(MovingAverage upperMa,MovingAverage lowerMa){
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
@@ -407,6 +421,44 @@ public class TrendAnalyzer {
         }
         return results;
     }
+
+    /**
+     * 查找指定的天数内出现暴大量
+     * @param multiple
+     * @param withInDays
+     * @param kStickPosition
+     * @return
+     */
+    public List<String> get_large_volume(int withInDays, int beforeAfterDays){
+        List<String> results = new ArrayList<>();
+        if(this.fileList == null || this.fileList.size()<=0){
+            return results;
+        }
+        for (String file:this.fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            boolean isHit = analysisUtil.is_large_volume(baseBarSeries,withInDays,beforeAfterDays);
+            if(isHit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<StockFeatures> get_large_volume_list(int withInDays){
+        List<StockFeatures> results = new ArrayList<>();
+        if(this.fileList == null || this.fileList.size()<=0){
+            return results;
+        }
+        for (String file:this.fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            StockFeatures stockFeatures = analysisUtil.get_large_volume(baseBarSeries,withInDays);
+            if(stockFeatures!=null){
+                results.add(stockFeatures);
+            }
+        }
+        return results;
+    }
+
 
     /**
      * 严格的长红K棒

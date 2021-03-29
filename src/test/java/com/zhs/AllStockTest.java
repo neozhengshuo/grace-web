@@ -218,7 +218,7 @@ public class AllStockTest {
     }
 
     /**
-     *
+     * 趋势向上的过程中，查找长红K棒
      */
     @Test
     public void test(){
@@ -242,20 +242,24 @@ public class AllStockTest {
         FileUtil.writeTxtFile("长K棒",results,true);
     }
 
-//    @Test
-//    public void test3(){
-//        List<String> paths = null;
-//        TrendAnalyzer trendAnalyzer = null;
-//        List<String> results = null;
-//
-//        paths = FileStockDailyData.getStockFilesWithFullPath();
-//        trendAnalyzer = new TrendAnalyzer(paths);
-//        results = trendAnalyzer.getTrendUp(MovingAverage.MA63,30);
-//        System.out.println("MA63趋势向上"+results.size());
-//        FileUtil.writeTxtFile("MA63趋势向上",results,true);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.get_long_k_stick(5);
-//        FileUtil.writeTxtFile("长K棒",results,true);
-//    }
+    @Test
+    public void test3(){
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+
+        paths = FileStockDailyData.getStockFilesWithFullPath();
+        trendAnalyzer = new TrendAnalyzer(paths);
+        results = trendAnalyzer.getTrendUp(MovingAverage.MA63,30);
+        System.out.println("MA63趋势向上"+results.size());
+        FileUtil.writeTxtFile("MA63趋势向上",results,true);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+
+        // 参数组1
+        results = trendAnalyzer.get_large_volume(8,5);
+
+        FileUtil.writeTxtFile("爆大量",results,true);
+    }
+
 }

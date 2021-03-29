@@ -4,6 +4,7 @@ import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.entities.Kdj;
 import com.zhs.entities.MAs;
 import com.zhs.entities.Stock;
+import com.zhs.entities.StockFeatures;
 import com.zhs.entities.dict.KStickPosition;
 import com.zhs.entities.dict.MovingAverage;
 import com.zhs.indicator.DIndicator;
@@ -462,6 +463,25 @@ public class AnalysisUtil {
         return hit1 && hit2;
     }
 
+    public boolean is_price_up_ma(BarSeries barSeries,MovingAverage ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma_indicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+
+        Bar endBar = barSeries.getBar(endIndex);
+        float open = endBar.getOpenPrice().floatValue();
+        float close = endBar.getClosePrice().floatValue();
+        float high = endBar.getHighPrice().floatValue();
+        float low = endBar.getLowPrice().floatValue();
+        float ma_val = ma_indicator.getValue(endIndex).floatValue();
+
+        boolean hit1 = close>=ma_val;
+        return hit1;
+    }
+
     public boolean is_price_between_ma(BarSeries barSeries,MovingAverage upperMa,MovingAverage lowerMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<1) return false;
@@ -716,6 +736,98 @@ public class AnalysisUtil {
     }
 
     /**
+     * 找到指定天数内最大量的那一天。
+     * @param barSeries
+     * @param withInDays
+     * @return
+     */
+    public StockFeatures get_large_volume(BarSeries barSeries,int withInDays){
+        StockFeatures stockFeatures = null;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<withInDays) return null;
+
+        int start = endIndex-withInDays;
+
+
+        Map<String,Float> largeVolumeMap = new HashMap<>();
+        for (int i = start;i<=endIndex;i++){
+            String key = barSeries.getBar(i).getDateName();
+            float volume = barSeries.getBar(i).getVolume().floatValue();
+            largeVolumeMap.put(key,volume);
+        }
+        float max = Collections.max(largeVolumeMap.values());
+        for (String key:largeVolumeMap.keySet()){
+            if(largeVolumeMap.get(key) == max){
+                stockFeatures = new StockFeatures();
+                stockFeatures.setId(0);
+                stockFeatures.setName(barSeries.getName());
+                stockFeatures.setFeatures("large_volume");
+                stockFeatures.setDate(key);
+            }
+        }
+        return stockFeatures;
+    }
+
+    /**
+     * 判断是否在指定的天数内出现大量
+     * 大量的判定：量大于5日均量和63日均量，且大于近期的量（前后5天）。
+     * @param barSeries
+     * @param withInDays
+     * @param beforeAfterDays
+     * @return
+     */
+    public boolean is_large_volume(BarSeries barSeries,int withInDays,int beforeAfterDays){
+        boolean hit = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<(withInDays+beforeAfterDays)) return false;
+
+
+//        boolean hit = false;
+//        int endIndex = barSeries.getEndIndex();
+//        if(endIndex<(withInDays+beforeAfterDays)) return false;
+//
+//        VolumeIndicator vol_indicator = new VolumeIndicator(barSeries);
+//        SMAIndicator ma5_vol_indicator = new SMAIndicator(vol_indicator,MovingAverage.MA5.getMaValue());
+//        SMAIndicator ma63_vol_indicator = new SMAIndicator(vol_indicator,MovingAverage.MA63.getMaValue());
+//
+//
+//
+//        for (int i=endIndex;i>endIndex-withInDays;i--){
+//
+//            float current_vol = barSeries.getBar(i).getVolume().floatValue();
+//            float current_ma5_vol = ma5_vol_indicator.getValue(i).floatValue();
+//            float current_ma63_vol = ma63_vol_indicator.getValue(i).floatValue();
+//
+//            boolean hit1 = current_ma5_vol>=current_ma63_vol;
+//            boolean hit2 = current_vol>=current_ma5_vol;
+//
+//            hit = hit1 && hit2;
+//            if(hit) {
+//                int start = i-beforeAfterDays;
+//                int end = 0;
+//                if((endIndex-i)<=beforeAfterDays){
+//                    end = endIndex;
+//                }else{
+//                    end = i+beforeAfterDays;
+//                }
+//                for (int j=start;j<=end;j++){
+//                    if(i==j){continue;}
+//                    float vol = barSeries.getBar(j).getVolume().floatValue();
+//                    if (vol>current_vol){
+//                        hit = false;
+//                        break;
+//                    }
+//                }
+//                if(hit){
+//                    logger.info(String.format("%s  %s",barSeries.getName(),barSeries.getBar(i).getDateName()));
+//                    break;
+//                }
+//            }
+//        }
+        return hit;
+    }
+
+    /**
      * 判断J值是否在50以下上涨,同时前2天的J呈现下跌。
      * @param barSeries
      * @return
@@ -862,8 +974,6 @@ public class AnalysisUtil {
             float prev1_close = barSeries.getBar(i-1).getClosePrice().floatValue();
             float prev1_high = barSeries.getBar(i-1).getHighPrice().floatValue();
             float prev1_low = barSeries.getBar(i-1).getLowPrice().floatValue();
-
-
 
             if(current_close>current_open && prev1_close<current_close && current_high>prev1_high && current_vol>=current_ma5_vol){
                 float current_spread = (current_close-current_open);
