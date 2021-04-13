@@ -123,7 +123,7 @@ public class FileStockDailyData {
     }
 
     static public BaseBarSeries load(String filePath){
-        BaseBarSeries barSeries = new BaseBarSeries(filePath);;
+        BaseBarSeries barSeries = new BaseBarSeries(filePath);
 
         try(FileReader reader = new  FileReader(filePath)){
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);

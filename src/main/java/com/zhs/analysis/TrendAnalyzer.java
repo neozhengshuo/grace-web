@@ -46,6 +46,19 @@ public class TrendAnalyzer {
         return results;
     }
 
+    public List<String> get250MaTrendUp(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is250MaTrendUpwards(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
     /**
      * 获取特定均线向上的股票。
      * @param ma 均线
@@ -281,7 +294,7 @@ public class TrendAnalyzer {
         return results;
     }
 
-    public List<String> get_is_price_up_ma(MovingAverage ma){
+    public List<String> get_price_up_ma(MovingAverage ma){
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
@@ -300,6 +313,19 @@ public class TrendAnalyzer {
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = analysisUtil.is_price_between_ma(barSeries,upperMa,lowerMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> get_price_overgo(int days,MovingAverage ma1,MovingAverage ma2,MovingAverage ma3){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_price_overgo(barSeries,days,ma1,ma2,ma3);
             if(hit){
                 results.add(file);
             }

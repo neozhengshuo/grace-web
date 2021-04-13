@@ -115,6 +115,28 @@ public class AnalysisUtil {
         return maList;
     }
 
+    public boolean is250MaTrendUpwards(BarSeries barSeries){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,250);
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA>beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+
+        return isUp;
+    }
+
     /**
      * 判断某均线是否在指定的天数内持续向上,且大于年线（MA250）
      * @param barSeries 指定待分析的序列
@@ -135,8 +157,9 @@ public class AnalysisUtil {
         for(int i = barCount-1;i>=barCount-continued;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
             float beforeSMA = smaIndicator.getValue(i-1).floatValue();
-            float ma250Value = ma250Indicator.getValue(i).floatValue();
-            if(currentSMA<beforeSMA || currentSMA<ma250Value){
+            float current_ma250Value = ma250Indicator.getValue(i).floatValue();
+            float before_ma250Value = ma250Indicator.getValue(i-1).floatValue();
+            if(currentSMA<beforeSMA || current_ma250Value<before_ma250Value || currentSMA<current_ma250Value){
                 isUp = false;
                 break;
             }
@@ -503,6 +526,45 @@ public class AnalysisUtil {
         return hit1 && hit2;
     }
 
+    public boolean is_price_overgo(BarSeries barSeries,int days,MovingAverage ma1,MovingAverage ma2,MovingAverage ma3){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
+
+        List<Float> highList = new ArrayList<>();
+        List<Float> lowList =new ArrayList<>();
+        List<Float> ma1_List = new ArrayList<>();
+        List<Float> ma2_List = new ArrayList<>();
+        List<Float> ma3_List = new ArrayList<>();
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma1_indicator = new SMAIndicator(closePriceIndicator,ma1.getMaValue());
+        SMAIndicator ma2_indicator = new SMAIndicator(closePriceIndicator,ma2.getMaValue());
+        SMAIndicator ma3_indicator = new SMAIndicator(closePriceIndicator,ma3.getMaValue());
+
+
+        for (int i = endIndex;i>endIndex-days;i--){
+            highList.add(barSeries.getBar(i).getHighPrice().floatValue());
+            lowList.add(barSeries.getBar(i).getLowPrice().floatValue());
+
+            ma1_List.add(ma1_indicator.getValue(i).floatValue());
+            ma2_List.add(ma2_indicator.getValue(i).floatValue());
+            ma3_List.add(ma3_indicator.getValue(i).floatValue());
+        }
+        float highPrice = Collections.max(highList);
+        float lowPrice = Collections.min(lowList);
+        float ma1HighValue = Collections.max(ma1_List);
+        float ma1LowValue = Collections.min(ma1_List);
+        float ma2HighValue = Collections.max(ma2_List);
+        float ma2LowValue = Collections.min(ma2_List);
+        float ma3HighValue = Collections.max(ma3_List);
+        float ma3LowValue = Collections.min(ma3_List);
+
+        boolean hit1 = ma1HighValue<= highPrice && ma2HighValue<= highPrice && ma3HighValue<= highPrice;
+        boolean hit2 = ma1LowValue>= lowPrice && ma2LowValue>= lowPrice && ma3LowValue>= lowPrice;
+
+        return  hit1 && hit2;
+    }
+
     /**
      * 量缩价跌（最好连续2-3日），且价在31MA中间收红K
      * @param barSeries
@@ -862,15 +924,23 @@ public class AnalysisUtil {
 //        DIndicator d = new DIndicator(k);
 //        JIndicator j = new JIndicator(k,d);
 
-        StochasticOscillatorKIndicator k = new StochasticOscillatorKIndicator(barSeries,9);
-        StochasticOscillatorDIndicator d = new StochasticOscillatorDIndicator(k);
+        StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
+                new StochasticOscillatorKIndicator(barSeries,9);
+        KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
+        DIndicator d = new DIndicator(k);
         JIndicator j = new JIndicator(k,d);
+
+//        StochasticOscillatorKIndicator k =
+//                new StochasticOscillatorKIndicator(barSeries,9);
+//        StochasticOscillatorDIndicator d = new StochasticOscillatorDIndicator(k);
+//        JIndicator j = new JIndicator(k,d);
+
         boolean hit = false;
 
         int endIndex = barSeries.getEndIndex();
-        if(endIndex>0){
+        if(endIndex>9){
             float currentJ = j.getValue(endIndex).floatValue();
-            hit = currentJ<jValue;
+            hit = currentJ<=jValue;
         }
         return hit;
     }
