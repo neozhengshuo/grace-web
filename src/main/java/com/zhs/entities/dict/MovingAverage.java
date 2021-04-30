@@ -4,6 +4,7 @@ public enum MovingAverage {
     MA5(5),
     MA11(11),
     MA18(18),
+    MA30(30),
     MA31(31),
     MA63(63),
     MA250(250);

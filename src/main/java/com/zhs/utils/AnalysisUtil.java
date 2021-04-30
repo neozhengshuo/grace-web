@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeries;
+import org.ta4j.core.indicators.EMAIndicator;
 import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.StochasticOscillatorDIndicator;
 import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
@@ -137,6 +138,133 @@ public class AnalysisUtil {
         return isUp;
     }
 
+    public boolean is63MaTrendUpwards(BarSeries barSeries){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,63);
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA>beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+
+        return isUp;
+    }
+
+    public boolean is31MaTrendUpwards(BarSeries barSeries){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,31);
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA>beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+        return isUp;
+    }
+
+    public boolean isMaTrendUpwards(BarSeries barSeries,MovingAverage ma){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA>beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+        return isUp;
+    }
+
+
+
+    public boolean is5MaTrendDown(BarSeries barSeries){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,5);
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA<=beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+        return isUp;
+    }
+
+    /**
+     * 计算下影线
+     * @param barSeries
+     * @return
+     */
+    public boolean isUpperShadow(BarSeries barSeries){
+        boolean hit = false;
+
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        Bar bar = barSeries.getBar(endIndex);
+        float hight = bar.getHighPrice().floatValue();
+        float low = bar.getLowPrice().floatValue();
+        float open = bar.getOpenPrice().floatValue();
+        float close = bar.getClosePrice().floatValue();
+
+        float solid = Math.abs(open-close);
+
+        float downShadow;
+        if(open>close){
+            downShadow = Math.abs(low-close);
+        }else {
+            downShadow = Math.abs(low-open);
+        }
+
+        float upShadow;
+        if(open>close){
+            upShadow = Math.abs(hight-open);
+        }else {
+            upShadow = Math.abs(hight-close);
+        }
+
+
+        hit = downShadow/solid>=2 && upShadow/downShadow<0.3;
+        return hit;
+    }
+
+
+
     /**
      * 判断某均线是否在指定的天数内持续向上,且大于年线（MA250）
      * @param barSeries 指定待分析的序列
@@ -165,6 +293,86 @@ public class AnalysisUtil {
             }
         }
         return isUp;
+    }
+
+    /**
+     * 判断指定天数的EMA是否向上
+     * @param barSeries 要计算的股票
+     * @param ma EMA的周期
+     * @param continued 指定的天数，在该天数内EMA是向上的
+     * @return 是或否
+     */
+    public boolean is_ema_up(BarSeries barSeries,MovingAverage ma,int continued){
+        boolean isUp = true;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<continued) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        EMAIndicator emaIndicator = new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        for (int i = endIndex;i>=endIndex-continued;i--){
+            float current_ema = emaIndicator.getValue(i).floatValue();
+            float before_ema = emaIndicator.getValue(i-1).floatValue();
+            if(current_ema<before_ema){
+                isUp = false;
+                break;
+            }
+        }
+
+        return isUp;
+    }
+
+    /**
+     * 价格向上突破指定的EMA
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean is_price_up_ema(BarSeries barSeries,MovingAverage ma){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        EMAIndicator emaIndicator = new EMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        float close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float open_price = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        float low_price = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        if(close_price>=open_price){
+            float ema_price = emaIndicator.getValue(endIndex).floatValue();
+            if(close_price>=ema_price && low_price<=ema_price){
+                isUp = true;
+            }
+        }
+        return isUp;
+    }
+
+    /**
+     * EMA金叉
+     * @param barSeries 要计算的股票
+     * @param shortMa 短周期EMA
+     * @param longMa 长周期EMA
+     * @return 是或否
+     */
+    public boolean is_ema_golden_fork(BarSeries barSeries,MovingAverage shortMa,MovingAverage longMa){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        EMAIndicator short_ema_indicator = new EMAIndicator(closePriceIndicator,shortMa.getMaValue());
+        EMAIndicator long_ema_indicator = new EMAIndicator(closePriceIndicator,longMa.getMaValue());
+
+        float current_short_ema_vol = short_ema_indicator.getValue(endIndex).floatValue();
+        float before_short_ema_vol = short_ema_indicator.getValue(endIndex-1).floatValue();
+        float current_long_ema_vol = long_ema_indicator.getValue(endIndex).floatValue();
+        float before_long_ema_vol = long_ema_indicator.getValue(endIndex-1).floatValue();
+
+        boolean hit1 = current_short_ema_vol>=current_long_ema_vol;
+        boolean hit2 = before_short_ema_vol<=before_long_ema_vol;
+
+        return hit1 && hit2;
+
     }
 
     /**
@@ -272,6 +480,8 @@ public class AnalysisUtil {
         hit = hit1 || hit2 || hit3;
         return hit;
     }
+
+
 
     /**
      * 判断当前K值是否大于前一日的K值,且J值在K值的下面

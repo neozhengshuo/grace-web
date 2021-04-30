@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseBarSeries;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,119 @@ public class TrendAnalyzer {
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = analysisUtil.is250MaTrendUpwards(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> get63MaTrendUp(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is63MaTrendUpwards(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> get31MaTrendUp(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is31MaTrendUpwards(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getMaTrendUp(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.isMaTrendUpwards(baseBarSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+
+
+
+    public List<String> get5MaTrendDown(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is5MaTrendDown(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getUpperShadow(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.isUpperShadow(baseBarSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+
+    public List<String> get_ema_up(MovingAverage ma ,int continued){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_ema_up(barSeries,ma,continued);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 价格突破指定的EMA
+     * @param ma
+     * @return
+     */
+    public List<String> get_price_up_ema(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_price_up_ema(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> get_ema_golden_fork(MovingAverage shortMA,MovingAverage longMA){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_ema_golden_fork(barSeries,shortMA,longMA);
             if(hit){
                 results.add(file);
             }

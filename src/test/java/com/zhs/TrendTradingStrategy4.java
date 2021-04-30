@@ -21,7 +21,9 @@ public class TrendTradingStrategy4 {
 
         paths = FileStockDailyData.getStockFilesWithFullPath();
         trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.getTrendUp(MovingAverage.MA31,MovingAverage.MA63,MovingAverage.MA250,8,20,50);
+        //results = trendAnalyzer.getTrendUp(MovingAverage.MA31,MovingAverage.MA63,MovingAverage.MA250,8,20,50);
+        results = trendAnalyzer.getTrendUp(MovingAverage.MA63,MovingAverage.MA250,15,40);
+        //results = trendAnalyzer.getTrendUp(MovingAverage.MA250,50);
         System.out.println("ma31_ma63_ma250："+results.size());
         FileUtil.writeTxtFile("ma31_ma63_ma250",results,true);
     }
