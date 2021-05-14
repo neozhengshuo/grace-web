@@ -2,7 +2,6 @@ package com.zhs;
 
 import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.datasource.FileStockDailyData;
-import com.zhs.datasource.FileStockDailyDataTest;
 import com.zhs.entities.dict.MovingAverage;
 import com.zhs.utils.FileUtil;
 import org.junit.jupiter.api.Test;
@@ -10,115 +9,107 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 public class TrendTradingStrategy6 {
-    @Test
-    public void test(){
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-
-        paths = FileStockDailyData.getStockFilesWithFullPath();
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.getTrendUp(MovingAverage.MA63,10);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_ema_up(MovingAverage.MA30,5);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA30);
-
-        String strOut = String.format("EMA(%s)向上(%s)",MovingAverage.MA30.getMaValue(),5);
-        FileUtil.writeTxtFile(strOut,results,true);
-    }
-
-    @Test
-    public void test2(){
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-
-        paths = FileStockDailyData.getStockFilesWithFullPath();
-//        trendAnalyzer = new TrendAnalyzer(paths);
-//        results = trendAnalyzer.get_ema_up(MovingAverage.MA30,20);
-
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.get_ema_golden_fork(MovingAverage.MA5,MovingAverage.MA30);
-
-        String strOut = String.format("EMA(%s)向上(%s)",MovingAverage.MA30.getMaValue(),5);
-        FileUtil.writeTxtFile(strOut,results,true);
-    }
 
     /**
-     * 年线向上，价突破30EMA。
+     * 短周期均线在长周期均线下方，且短周期均线向上。
      */
     @Test
-    public void test3(){
+    public void test2() {
         List<String> paths = null;
         TrendAnalyzer trendAnalyzer = null;
         List<String> results = null;
 
-        paths = FileStockDailyData.getStockFilesWithFullPath();
+        results = FileStockDailyData.getStockFilesWithFullPath();
 
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA250);
+        /* 第0组 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getTrendBetween(MovingAverage.MA144, MovingAverage.MA5,MovingAverage.MA44);
 
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA63);
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
 //
 //        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA31);
-
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.get5MaTrendDown();
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getUpperShadow();
+//        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA44);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA30);
+        results = trendAnalyzer.getMaGoldCross(MovingAverage.MA5,MovingAverage.MA30);
 
-        String strOut = "年线向上价突破30EAM";
-        FileUtil.writeTxtFile(strOut,results,true);
+
+        /* 第一组  EMA144下行，EMA44上行，均线收拢
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA44);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(MovingAverage.MA44,MovingAverage.MA144,0.05F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.get_price_up_ma(MovingAverage.MA44);
+        */
+
+        /* 第二组
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA44);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(MovingAverage.MA44,MovingAverage.MA144,0.03F);
+        */
+
+        String strOut = String.format("EMA(%s)向上(%s)", MovingAverage.MA30.getMaValue(), 5);
+        FileUtil.writeTxtFile(strOut, results, true);
+
     }
 
     /**
-     * 价突破30EMA，并且价在63MA上方
+     * 价站上EMA144/169EMA。
      */
     @Test
-    public void test4(){
-        List<String> paths = null;
+    public void test3() {
         TrendAnalyzer trendAnalyzer = null;
         List<String> results = null;
 
-        paths = FileStockDailyData.getStockFilesWithFullPath();
-
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.get_price_up_ma(MovingAverage.MA63);
+        results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA30);
+        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA144);
 
         String strOut = "年线向上价突破30EAM";
-        FileUtil.writeTxtFile(strOut,results,true);
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
     /**
-     * 价突破30EMA，63MA、250MA向上
+     * EMA144/169EMA向上,EMA20向下
+     * 股价接近EMA144，且有下影线
      */
     @Test
-    public void test5(){
-        List<String> paths = null;
+    public void test6() {
         TrendAnalyzer trendAnalyzer = null;
         List<String> results = null;
 
-        paths = FileStockDailyData.getStockFilesWithFullPath();
-
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results =  trendAnalyzer.getTrendUp(MovingAverage.MA63,MovingAverage.MA250,10,40);
+        results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA30);
+        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA169);
 
-        String strOut = "年线向上价突破30EAM";
-        FileUtil.writeTxtFile(strOut,results,true);
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA20);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.get_price_up_ema(MovingAverage.MA144);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getLowerShadow();
+
+        String strOut = "test";
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 }
+

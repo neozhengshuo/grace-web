@@ -5,11 +5,11 @@ import com.zhs.entities.StockFeatures;
 import com.zhs.entities.dict.KStickPosition;
 import com.zhs.entities.dict.MovingAverage;
 import com.zhs.utils.AnalysisUtil;
+import com.zhs.utils.MovingAverageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseBarSeries;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +20,7 @@ public class TrendAnalyzer {
     private final List<String> fileList;
     private static final Logger logger = LoggerFactory.getLogger(TrendAnalyzer.class);
     private static final AnalysisUtil analysisUtil = new AnalysisUtil();
+    private static final MovingAverageUtil movingAverageUtil = new MovingAverageUtil();
     private List<String> trendUpList;
 
     /**
@@ -99,15 +100,19 @@ public class TrendAnalyzer {
         return results;
     }
 
-
-
-
-    public List<String> get5MaTrendDown(){
+    /**
+     * 判断两条均线的距离是否小于指定的值
+     * @param ma1
+     * @param ma2
+     * @param distance
+     * @return
+     */
+    public List<String> getMaDistance(MovingAverage ma1,MovingAverage ma2,float distance){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = analysisUtil.is5MaTrendDown(baseBarSeries);
+            boolean hit = movingAverageUtil.isMaDistance(baseBarSeries,ma1,ma2,distance);
             if(hit){
                 results.add(file);
             }
@@ -115,12 +120,57 @@ public class TrendAnalyzer {
         return results;
     }
 
-    public List<String> getUpperShadow(){
+    public List<String> getMaTrendSmooth(MovingAverage ma){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = analysisUtil.isUpperShadow(baseBarSeries);
+            boolean hit = analysisUtil.isMaTrendSmooth(baseBarSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 对三条均线进行比较，某条均线是否在其他两条均线的中间。
+     */
+    public List<String> getTrendBetween(MovingAverage upMa,MovingAverage midMa,MovingAverage downMa){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isTrendBetween(baseBarSeries,upMa,midMa,downMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+
+
+
+    public List<String> getMaTrendDown(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.isMaTrendDown(baseBarSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getLowerShadow(){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.isLowerShadow(baseBarSeries);
             if(hit){
                 results.add(file);
             }
@@ -160,18 +210,57 @@ public class TrendAnalyzer {
         return results;
     }
 
-    public List<String> get_ema_golden_fork(MovingAverage shortMA,MovingAverage longMA){
+    /**
+     * 当前价离均线的距离
+     * @param ma
+     * @return
+     */
+    public List<String> get_price_distance_ema(MovingAverage ma,float distance){
         List<String> results = new ArrayList<>();
         for(String file:fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = analysisUtil.is_ema_golden_fork(barSeries,shortMA,longMA);
+            boolean hit = analysisUtil.is_price_distance_ema(barSeries,ma,distance);
             if(hit){
                 results.add(file);
             }
         }
         return results;
     }
+
+    public List<String> getMaGoldCross(MovingAverage shortMA, MovingAverage longMA){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isMaGoldCross(barSeries,shortMA,longMA);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 指定两条均线，短周期均线在长周期均线下方。
+     * @param shortMA
+     * @param longMA
+     * @return
+     */
+    public List<String> get_ema_down_ema(MovingAverage shortMA,MovingAverage longMA){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_ema_down_ema(barSeries,shortMA,longMA);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+
 
     /**
      * 获取特定均线向上的股票。

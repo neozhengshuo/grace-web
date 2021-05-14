@@ -187,7 +187,7 @@ public class AnalysisUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -202,15 +202,34 @@ public class AnalysisUtil {
         return isUp;
     }
 
-
-
-    public boolean is5MaTrendDown(BarSeries barSeries){
+    public boolean isMaTrendSmooth(BarSeries barSeries,MovingAverage ma){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,5);
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        for(int i = endIndex;i>=1;i--){
+            float currentSMA = smaIndicator.getValue(i).floatValue();
+            float beforeSMA = smaIndicator.getValue(i-1).floatValue();
+
+            if(currentSMA==beforeSMA){
+                isUp = true;
+            }else{
+                break;
+            }
+        }
+        return isUp;
+    }
+
+    public boolean isMaTrendDown(BarSeries barSeries, MovingAverage ma){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<0) return false;
+
+        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -230,7 +249,7 @@ public class AnalysisUtil {
      * @param barSeries
      * @return
      */
-    public boolean isUpperShadow(BarSeries barSeries){
+    public boolean isLowerShadow(BarSeries barSeries){
         boolean hit = false;
 
         int endIndex = barSeries.getEndIndex();
@@ -340,7 +359,33 @@ public class AnalysisUtil {
         float low_price = barSeries.getBar(endIndex).getLowPrice().floatValue();
         if(close_price>=open_price){
             float ema_price = emaIndicator.getValue(endIndex).floatValue();
-            if(close_price>=ema_price && low_price<=ema_price){
+            if(low_price<=ema_price){
+                isUp = true;
+            }
+        }
+        return isUp;
+    }
+
+    /**
+     * 判断当前最低价离指定均线的距离
+     * @param barSeries 股票
+     * @param ma 均线
+     * @param distance 距离
+     * @return
+     */
+    public boolean is_price_distance_ema(BarSeries barSeries,MovingAverage ma,float distance){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        EMAIndicator emaIndicator = new EMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        float low_price = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        float ema_price = emaIndicator.getValue(endIndex).floatValue();
+        if(low_price>=ema_price){
+            float d = (low_price-ema_price)/ema_price;
+            if(d<distance){
                 isUp = true;
             }
         }
@@ -373,6 +418,28 @@ public class AnalysisUtil {
 
         return hit1 && hit2;
 
+    }
+
+    /**
+     * 指定两条均线，短周期均线在长周期均线下方。
+     * @param barSeries
+     * @param shortMa
+     * @param longMa
+     * @return
+     */
+    public boolean is_ema_down_ema(BarSeries barSeries,MovingAverage shortMa,MovingAverage longMa){
+        boolean isUp = false;
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        EMAIndicator short_ema_indicator = new EMAIndicator(closePriceIndicator,shortMa.getMaValue());
+        EMAIndicator long_ema_indicator = new EMAIndicator(closePriceIndicator,longMa.getMaValue());
+
+        float current_short_ema_vol = short_ema_indicator.getValue(endIndex).floatValue();
+        float current_long_ema_vol = long_ema_indicator.getValue(endIndex).floatValue();
+
+        return current_short_ema_vol<=current_long_ema_vol;
     }
 
     /**
