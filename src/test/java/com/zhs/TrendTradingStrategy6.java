@@ -8,61 +8,121 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+/**
+ * 交易策略，均线系统
+ */
 public class TrendTradingStrategy6 {
 
     /**
-     * 短周期均线在长周期均线下方，且短周期均线向上。
+     * 1. 长周期均线、中周期均线向上
+     * 2. 端周期均线在长周期均线和中周期均线中间
+     * 3. 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
+     */
+    @Test
+    public void test1() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        /* 参数组1 */
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA30;
+        MovingAverage longMa = MovingAverage.MA250;
+        float distance = 0.06F;
+
+        /* 参数组2
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA44;
+        MovingAverage longMa = MovingAverage.MA144;
+        float distance = 0.05F;
+         */
+
+        /* 第1组 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA44);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getTrendBetween(MovingAverage.MA144, MovingAverage.MA5,MovingAverage.MA44);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaDistance(MovingAverage.MA44,MovingAverage.MA144,0.05F);
+
+        /* 第2组 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(shortMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(longMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getTrendBetween(longMa,shortMa,midMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
+
+        String strOut = String.format("EMA(%s %s %s)_D(%s)",
+                shortMa.getMaValue(),
+                midMa.getMaValue(),
+                longMa.getMaValue(),
+                distance);
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 1. 长周期均线、中周期均线向上
+     * 2. 中周期均线在长周期均线下方
+     * 3. 短周期均线在长周期均线和中周期均线中间
+     * 4. 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
      */
     @Test
     public void test2() {
         List<String> paths = null;
         TrendAnalyzer trendAnalyzer = null;
         List<String> results = null;
-
         results = FileStockDailyData.getStockFilesWithFullPath();
 
-        /* 第0组 */
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getTrendBetween(MovingAverage.MA144, MovingAverage.MA5,MovingAverage.MA44);
+        /* 参数组1 */
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA44;
+        MovingAverage longMa = MovingAverage.MA144;
+        float distance = 0.06F;
 
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA44);
+        /* 参数组2
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA44;
+        MovingAverage longMa = MovingAverage.MA144;
+        float distance = 0.05F;
+         */
+
+        /* 第1组 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(midMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaGoldCross(MovingAverage.MA5,MovingAverage.MA30);
-
-
-        /* 第一组  EMA144下行，EMA44上行，均线收拢
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
+        results = trendAnalyzer.getMaTrendUp(longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA44);
+        results = trendAnalyzer.get_ema_down_ema(midMa,longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(MovingAverage.MA44,MovingAverage.MA144,0.05F);
+        results = trendAnalyzer.get_ema_down_ema(midMa,longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_price_up_ma(MovingAverage.MA44);
-        */
-
-        /* 第二组
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA44);
+        results = trendAnalyzer.getTrendBetween(longMa, shortMa,midMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+        results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(MovingAverage.MA44,MovingAverage.MA144,0.03F);
-        */
-
-        String strOut = String.format("EMA(%s)向上(%s)", MovingAverage.MA30.getMaValue(), 5);
+        String strOut = String.format("EMA(%s %s %s)_D(%s)",
+                shortMa.getMaValue(),
+                midMa.getMaValue(),
+                longMa.getMaValue(),
+                distance);
         FileUtil.writeTxtFile(strOut, results, true);
-
     }
 
     /**
