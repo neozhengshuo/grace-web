@@ -245,7 +245,7 @@ public class AnalysisUtil {
     }
 
     /**
-     * 计算下影线
+     * 计算下影线，收红
      * @param barSeries
      * @return
      */
@@ -261,16 +261,16 @@ public class AnalysisUtil {
         float open = bar.getOpenPrice().floatValue();
         float close = bar.getClosePrice().floatValue();
 
-        float solid = Math.abs(open-close);
+        float solid = Math.abs(open-close); // 计算实体
 
-        float downShadow;
-        if(open>close){
-            downShadow = Math.abs(low-close);
+        float downShadow; // 计算下影线
+        if(close>=open){
+            downShadow = Math.abs(open-low);
         }else {
-            downShadow = Math.abs(low-open);
+            return false;
         }
 
-        float upShadow;
+        float upShadow;  // 计算上影线
         if(open>close){
             upShadow = Math.abs(hight-open);
         }else {
@@ -779,6 +779,30 @@ public class AnalysisUtil {
         float ma_val = ma_indicator.getValue(endIndex).floatValue();
 
         boolean hit1 = close>=ma_val;
+        return hit1;
+    }
+
+    /**
+     * 最低价接触到指定的均线(收盘价在均线之上)
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public boolean is_lower_price_touch_ma(BarSeries barSeries,MovingAverage ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator ma_indicator = new SMAIndicator(closePriceIndicator,ma.getMaValue());
+
+        Bar endBar = barSeries.getBar(endIndex);
+        float open = endBar.getOpenPrice().floatValue();
+        float close = endBar.getClosePrice().floatValue();
+        float high = endBar.getHighPrice().floatValue();
+        float low = endBar.getLowPrice().floatValue();
+        float ma_val = ma_indicator.getValue(endIndex).floatValue();
+
+        boolean hit1 = low<=ma_val && close > ma_val && close>=open;
         return hit1;
     }
 

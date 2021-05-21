@@ -6,6 +6,7 @@ import com.zhs.entities.dict.KStickPosition;
 import com.zhs.entities.dict.MovingAverage;
 import com.zhs.utils.AnalysisUtil;
 import com.zhs.utils.MovingAverageUtil;
+import com.zhs.utils.PlatformUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseBarSeries;
@@ -28,6 +29,25 @@ public class TrendAnalyzer {
      */
     public TrendAnalyzer(List<String> fileList){
         this.fileList = fileList;
+    }
+
+    /**
+     * 通过指定的天数和距离获取平台
+     * @param platformDays
+     * @param distance
+     * @return
+     */
+    public List<String> getPlatform(int platformDays,float distance){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PlatformUtil.isPlatform(baseBarSeries,platformDays,distance);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
     }
 
     /**
@@ -136,7 +156,7 @@ public class TrendAnalyzer {
     /**
      * 对三条均线进行比较，某条均线是否在其他两条均线的中间。
      */
-    public List<String> getTrendBetween(MovingAverage upMa,MovingAverage midMa,MovingAverage downMa){
+    public List<String> getMaTrendBetween(MovingAverage upMa, MovingAverage midMa, MovingAverage downMa){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -165,6 +185,10 @@ public class TrendAnalyzer {
         return results;
     }
 
+    /**
+     * 下影线，收红
+     * @return
+     */
     public List<String> getLowerShadow(){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
@@ -178,6 +202,60 @@ public class TrendAnalyzer {
         return results;
     }
 
+    /**
+     * [价]在指定的两条均线之间
+     * @param aboveMa
+     * @param belowMa
+     * @return
+     */
+    public List<String> getPriceBetweenMa(MovingAverage aboveMa,MovingAverage belowMa){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isPriceBetweenMa(baseBarSeries,aboveMa,belowMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 股价是在某条均线的下面
+     * @param ma
+     * @return
+     */
+    public List<String> getPriceUnderMa(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isPriceUnderMa(baseBarSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 判断股价是否在某条均线的上面
+     * @param ma
+     * @return
+     */
+    public List<String> getPriceAboveMa(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:fileList){
+            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isPriceAboveMa(baseBarSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 
     public List<String> get_ema_up(MovingAverage ma ,int continued){
         List<String> results = new ArrayList<>();
@@ -242,17 +320,17 @@ public class TrendAnalyzer {
     }
 
     /**
-     * 指定两条均线，短周期均线在长周期均线下方。
-     * @param shortMA
-     * @param longMA
+     * 第一条均线在第二条均线的下面。。
+     * @param firstMa
+     * @param secondMa
      * @return
      */
-    public List<String> get_ema_down_ema(MovingAverage shortMA,MovingAverage longMA){
+    public List<String> getMaPositionBelow(MovingAverage firstMa, MovingAverage secondMa){
         List<String> results = new ArrayList<>();
         for(String file:fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = analysisUtil.is_ema_down_ema(barSeries,shortMA,longMA);
+            boolean hit = movingAverageUtil.isMaPositionBelow(barSeries,firstMa,secondMa);
             if(hit){
                 results.add(file);
             }
@@ -260,7 +338,24 @@ public class TrendAnalyzer {
         return results;
     }
 
-
+    /**
+     * 第一条均线在第二条均线的上面。。
+     * @param firstMa
+     * @param secondMa
+     * @return
+     */
+    public List<String> getMaPositionAbove(MovingAverage firstMa, MovingAverage secondMa){
+        List<String> results = new ArrayList<>();
+        for(String file:fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isMaPositionAbove(barSeries,firstMa,secondMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 
     /**
      * 获取特定均线向上的股票。
@@ -503,6 +598,43 @@ public class TrendAnalyzer {
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = analysisUtil.is_price_up_ma(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 最低价接触到指定的均线（收盘价在均线之上）
+     * @param ma
+     * @return
+     */
+    public List<String> get_lower_price_touch_ma(MovingAverage ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = analysisUtil.is_lower_price_touch_ma(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 均线相等
+     * @param ma1
+     * @param ma2
+     * @return
+     */
+    public List<String> getMaEqual(MovingAverage ma1,MovingAverage ma2){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = movingAverageUtil.isMaEqual(barSeries,ma1,ma2);
             if(hit){
                 results.add(file);
             }

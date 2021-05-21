@@ -9,18 +9,59 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 /**
- * 趋势可能反转之前
+ * 趋势反转之后
  */
-public class TrendTradingStrategy6 {
 
+public class TrendTradingStrategy7 {
     /**
-     * 【趋势在可能反转之[前]-短期趋势比较】
+     * 【趋势在可能反转之[后]-均线距离比较】
      * - 长周期均线、中周期均线向上
      * - 中周期均线在长周期均线下方
-     * - 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
+     * - 中周期均线和长周期均线之间的距离在0.01-0.09（取值范围）。
      */
     @Test
     public void test1() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        /* 参数组 */
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA44;
+        MovingAverage longMa = MovingAverage.MA144;
+        float distance = 0.03F;
+
+        /* 筛选 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(midMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(longMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(midMa,longMa);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
+
+        String strOut = String.format("EMA(%s %s %s)_D(%s)",
+                shortMa.getMaValue(),
+                midMa.getMaValue(),
+                longMa.getMaValue(),
+                distance);
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 【趋势在可能反转之[后]-短期趋势在中期趋势和长期趋势之间】
+     * - 长周期均线、中周期均线向上
+     * - 中周期均线在长周期均线下方
+     * - 中周期均线和长周期均线之间的距离在0.01-0.09（取值范围）。
+     * - 短期趋势在中期趋势和长期趋势之间
+     */
+    @Test
+    public void test2() {
         List<String> paths = null;
         TrendAnalyzer trendAnalyzer = null;
         List<String> results = null;
@@ -40,10 +81,13 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getMaTrendUp(longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionBelow(midMa,longMa);
+        results = trendAnalyzer.getMaPositionAbove(midMa,longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendBetween(midMa,shortMa,longMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
                 shortMa.getMaValue(),
@@ -54,11 +98,11 @@ public class TrendTradingStrategy6 {
     }
 
     /**
-     * 【趋势在可能反转之[前]-短期趋势比较】
+     * 【趋势在可能反转之[后]-[价]在中期趋势和长期趋势之间】
      * - 长周期均线、中周期均线向上
      * - 中周期均线在长周期均线下方
-     * - 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
-     * - 短期趋势在中期趋势和长期趋势之间。
+     * - 中周期均线和长周期均线之间的距离在0.01-0.09（取值范围）。
+     * - [价]在中期趋势和长期趋势之间
      */
     @Test
     public void test3() {
@@ -71,7 +115,7 @@ public class TrendTradingStrategy6 {
         MovingAverage shortMa = MovingAverage.MA5;
         MovingAverage midMa = MovingAverage.MA44;
         MovingAverage longMa = MovingAverage.MA144;
-        float distance = 0.08F;
+        float distance = 0.1F;
 
         /* 筛选 */
         trendAnalyzer = new TrendAnalyzer(results);
@@ -81,13 +125,13 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getMaTrendUp(longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionBelow(midMa,longMa);
+        results = trendAnalyzer.getMaPositionAbove(midMa,longMa);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendBetween(longMa,shortMa,midMa);
+        results = trendAnalyzer.getPriceBetweenMa(midMa,longMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
                 shortMa.getMaValue(),
@@ -96,118 +140,4 @@ public class TrendTradingStrategy6 {
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
-
-    /**
-     * 【趋势在可能反转之[前]-短期趋势比较】
-     * - 长周期均线、中周期均线向上
-     * - 中周期均线在长周期均线下方
-     * - 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
-     * - 短期趋势在中期趋势和长期趋势之间。
-     */
-    @Test
-    public void test4() {
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-        results = FileStockDailyData.getStockFilesWithFullPath();
-
-        /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
-        float distance = 0.08F;
-
-        /* 筛选 */
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(midMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(longMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionBelow(midMa,longMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getPriceUnderMa(MovingAverage.MA144);
-
-        String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
-                distance);
-        FileUtil.writeTxtFile(strOut, results, true);
-    }
-
-    /**
-     * 【趋势在可能反转之[前]-短期趋势比较】
-     * - 长周期均线、中周期均线向上
-     * - 中周期均线在长周期均线下方
-     * - 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
-     * - [价格]在中期趋势和长期趋势之间。
-     */
-    @Test
-    public void test5() {
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-        results = FileStockDailyData.getStockFilesWithFullPath();
-
-        /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
-        float distance = 0.12F;
-
-        /* 筛选 */
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(midMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(longMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionBelow(midMa,longMa);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getPriceBetweenMa(longMa,midMa);
-
-        String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
-                distance);
-        FileUtil.writeTxtFile(strOut, results, true);
-    }
-
-    @Test
-    public void temp() {
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-        results = FileStockDailyData.getStockFilesWithFullPath();
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA169);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA5);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA144);
-
-        String strOut = "test";
-
-        FileUtil.writeTxtFile(strOut, results, true);
-    }
-
 }
-
