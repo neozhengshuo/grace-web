@@ -47,7 +47,8 @@ public class KLineUtil {
             float cankao = current_open+(current_entity/2);
             if(before_close>=cankao) return false;
 
-            if(current_entity/before_entity>=multiple){ // 倍数判断
+            float m = current_entity/before_entity;
+            if(m>=multiple){ // 倍数判断
                 float endIndex_close = subBarSeries.getBar(subEndIndex).getClosePrice().floatValue();
                 if(endIndex_close>=current_low && endIndex_close<=current_high){ // 当前价格在长红K的范围内。
                     KLineUtil.results.add(subBarSeries.getName()+"  "+subBarSeries.getBar(i).getSimpleDateName());

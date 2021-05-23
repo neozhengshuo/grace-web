@@ -126,7 +126,7 @@ public class TrendTradingStrategy8 {
 //        results = trendAnalyzer.getExpandVolume(20,5F);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getLongKline(20,20F);
+        results = trendAnalyzer.getLongKline(20,100F);
 
         String strOut = "test";
         FileUtil.writeTxtFile(strOut, results, true);

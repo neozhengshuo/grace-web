@@ -140,4 +140,46 @@ public class TrendTradingStrategy7 {
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
+
+    @Test
+    public void TEMP() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        /* 参数组 */
+        MovingAverage shortMa = MovingAverage.MA5;
+        MovingAverage midMa = MovingAverage.MA31;
+        MovingAverage longMa = MovingAverage.MA63;
+        float distance = 0.001F;
+
+        /* 筛选 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(midMa);
+//
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(longMa);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(shortMa);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaPositionAbove(midMa,longMa);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaDistance(shortMa,longMa,distance);
+
+
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(shortMa,longMa,distance);
+
+        String strOut = String.format("EMA(%s %s %s)_D(%s)",
+                shortMa.getMaValue(),
+                midMa.getMaValue(),
+                longMa.getMaValue(),
+                distance);
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
 }

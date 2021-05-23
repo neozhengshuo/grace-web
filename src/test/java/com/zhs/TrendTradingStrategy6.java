@@ -193,16 +193,13 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA169);
+        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA44);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA5);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA144);
+        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA5);
 
         String strOut = "test";
 
