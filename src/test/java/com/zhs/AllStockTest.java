@@ -241,25 +241,4 @@ public class AllStockTest {
 
         FileUtil.writeTxtFile("长K棒",results,true);
     }
-
-    @Test
-    public void test3(){
-        List<String> paths = null;
-        TrendAnalyzer trendAnalyzer = null;
-        List<String> results = null;
-
-        paths = FileStockDailyData.getStockFilesWithFullPath();
-        trendAnalyzer = new TrendAnalyzer(paths);
-        results = trendAnalyzer.getTrendUp(MovingAverage.MA63,30);
-        System.out.println("MA63趋势向上"+results.size());
-        FileUtil.writeTxtFile("MA63趋势向上",results,true);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-
-        // 参数组1
-        results = trendAnalyzer.get_large_volume(8,5);
-
-        FileUtil.writeTxtFile("爆大量",results,true);
-    }
-
 }

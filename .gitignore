@@ -4,6 +4,8 @@
 
 # grace-2021
 src/test/resources/app.properties
+src/main/resources/app.properties
+grace-data
 
 # IntelliJ project files
 .idea
@@ -59,4 +61,6 @@ hs_err_pid*
 
 # TODO: where does this rule come from?
 docs/_book
+
+
 

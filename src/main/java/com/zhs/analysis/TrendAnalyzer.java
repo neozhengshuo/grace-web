@@ -7,6 +7,8 @@ import com.zhs.entities.dict.MovingAverage;
 import com.zhs.utils.AnalysisUtil;
 import com.zhs.utils.MovingAverageUtil;
 import com.zhs.utils.PlatformUtil;
+import com.zhs.utils.VolumeUtils;
+import com.zhs.utils.KLineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseBarSeries;
@@ -783,27 +785,7 @@ public class TrendAnalyzer {
         return results;
     }
 
-    /**
-     * 查找指定的天数内出现暴大量
-     * @param multiple
-     * @param withInDays
-     * @param kStickPosition
-     * @return
-     */
-    public List<String> get_large_volume(int withInDays, int beforeAfterDays){
-        List<String> results = new ArrayList<>();
-        if(this.fileList == null || this.fileList.size()<=0){
-            return results;
-        }
-        for (String file:this.fileList){
-            BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
-            boolean isHit = analysisUtil.is_large_volume(baseBarSeries,withInDays,beforeAfterDays);
-            if(isHit){
-                results.add(file);
-            }
-        }
-        return results;
-    }
+
 
     public List<StockFeatures> get_large_volume_list(int withInDays){
         List<StockFeatures> results = new ArrayList<>();
@@ -840,4 +822,46 @@ public class TrendAnalyzer {
 //        }
 //        return results;
 //    }
+
+    /**
+     * 获取大量
+     * @param day 指定的天数
+     * @param multiple 均量的倍数。
+     * @return
+     */
+    public List<String> getExpandVolume(int day, float multiple){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isExpandVolume(barSeries,day,multiple);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 判断在指定的天数内是否出现长K线
+     * @param day
+     * @param multiple
+     * @return
+     */
+    public List<String> getLongKline(int day, float multiple){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = KLineUtil.isLongKline(barSeries,day,multiple);
+            if(hit){
+                results.add(file);
+            }
+        }
+        for (String out:KLineUtil.results){
+            System.out.println(out);
+        }
+        KLineUtil.results = new ArrayList<>();
+        return results;
+    }
 }

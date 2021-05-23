@@ -122,22 +122,13 @@ public class TrendTradingStrategy8 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
 
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA63);
-
-        trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA30);
-
 //        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaPositionBelow(MovingAverage.MA44,MovingAverage.MA144);
+//        results = trendAnalyzer.getExpandVolume(20,5F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getLongKline(20,20F);
 
         String strOut = "test";
-
-        // sdfdsf
-
         FileUtil.writeTxtFile(strOut, results, true);
     }
 }

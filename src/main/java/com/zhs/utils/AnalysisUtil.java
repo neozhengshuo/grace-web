@@ -1132,65 +1132,6 @@ public class AnalysisUtil {
     }
 
     /**
-     * 判断是否在指定的天数内出现大量
-     * 大量的判定：量大于5日均量和63日均量，且大于近期的量（前后5天）。
-     * @param barSeries
-     * @param withInDays
-     * @param beforeAfterDays
-     * @return
-     */
-    public boolean is_large_volume(BarSeries barSeries,int withInDays,int beforeAfterDays){
-        boolean hit = false;
-        int endIndex = barSeries.getEndIndex();
-        if(endIndex<(withInDays+beforeAfterDays)) return false;
-
-
-//        boolean hit = false;
-//        int endIndex = barSeries.getEndIndex();
-//        if(endIndex<(withInDays+beforeAfterDays)) return false;
-//
-//        VolumeIndicator vol_indicator = new VolumeIndicator(barSeries);
-//        SMAIndicator ma5_vol_indicator = new SMAIndicator(vol_indicator,MovingAverage.MA5.getMaValue());
-//        SMAIndicator ma63_vol_indicator = new SMAIndicator(vol_indicator,MovingAverage.MA63.getMaValue());
-//
-//
-//
-//        for (int i=endIndex;i>endIndex-withInDays;i--){
-//
-//            float current_vol = barSeries.getBar(i).getVolume().floatValue();
-//            float current_ma5_vol = ma5_vol_indicator.getValue(i).floatValue();
-//            float current_ma63_vol = ma63_vol_indicator.getValue(i).floatValue();
-//
-//            boolean hit1 = current_ma5_vol>=current_ma63_vol;
-//            boolean hit2 = current_vol>=current_ma5_vol;
-//
-//            hit = hit1 && hit2;
-//            if(hit) {
-//                int start = i-beforeAfterDays;
-//                int end = 0;
-//                if((endIndex-i)<=beforeAfterDays){
-//                    end = endIndex;
-//                }else{
-//                    end = i+beforeAfterDays;
-//                }
-//                for (int j=start;j<=end;j++){
-//                    if(i==j){continue;}
-//                    float vol = barSeries.getBar(j).getVolume().floatValue();
-//                    if (vol>current_vol){
-//                        hit = false;
-//                        break;
-//                    }
-//                }
-//                if(hit){
-//                    logger.info(String.format("%s  %s",barSeries.getName(),barSeries.getBar(i).getDateName()));
-//                    break;
-//                }
-//            }
-//        }
-        return hit;
-    }
-
-    /**
      * 判断J值是否在50以下上涨,同时前2天的J呈现下跌。
      * @param barSeries
      * @return
