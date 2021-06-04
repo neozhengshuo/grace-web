@@ -1,8 +1,11 @@
 package com.zhs;
 
+import com.zhs.analysis.KLineAnalyzer;
 import com.zhs.analysis.TrendAnalyzer;
+import com.zhs.analysis.VolumeAnalyzer;
 import com.zhs.datasource.FileStockDailyData;
 import com.zhs.entities.dict.MovingAverage;
+import com.zhs.entities.dict.RedGreen;
 import com.zhs.utils.FileUtil;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +17,7 @@ import java.util.List;
 
 public class TrendTradingStrategy7 {
     /**
-     * 【趋势在可能反转之[后]-均线距离比较】
+     * 【趋势反转[后]-均线距离比较】
      * - 长周期均线、中周期均线向上
      * - 中周期均线在长周期均线下方
      * - 中周期均线和长周期均线之间的距离在0.01-0.09（取值范围）。
@@ -27,9 +30,9 @@ public class TrendTradingStrategy7 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.03F;
 
         /* 筛选 */
@@ -46,9 +49,9 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -68,9 +71,9 @@ public class TrendTradingStrategy7 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.06F;
 
         /* 筛选 */
@@ -90,9 +93,9 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getMaTrendBetween(midMa,shortMa,longMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -112,9 +115,9 @@ public class TrendTradingStrategy7 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.1F;
 
         /* 筛选 */
@@ -134,13 +137,16 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getPriceBetweenMa(midMa,longMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
 
+    /**
+     * 均线纠结
+     */
     @Test
     public void TEMP() {
         List<String> paths = null;
@@ -148,38 +154,195 @@ public class TrendTradingStrategy7 {
         List<String> results = null;
         results = FileStockDailyData.getStockFilesWithFullPath();
 
-        /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA31;
-        MovingAverage longMa = MovingAverage.MA63;
+        // 均线距离
         float distance = 0.001F;
 
         /* 筛选 */
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(midMa);
-//
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(longMa);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(shortMa);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaPositionAbove(midMa,longMa);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaDistance(shortMa,longMa,distance);
-
-
+        results = trendAnalyzer.getMaTrendUp(63);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(shortMa,longMa,distance);
+        results = trendAnalyzer.getMaTrendUp(144);
 
-        String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
-                distance);
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(5,63,distance);
+
+        String strOut = "test";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 均线纠结
+     */
+    @Test
+    public void TEMP2() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        /* 筛选 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(31);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(144);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(31,63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(31,63,distance);
+
+        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
+        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
+
+        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
+        results = klineAnalyzer.getLongKline(7,4F);
+
+        String strOut = "test1";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 均线纠结
+     */
+    @Test
+    public void TEMP3() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        /* 筛选 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(31);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(31,63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(63,250,distance);
+
+        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
+        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
+
+        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
+        results = klineAnalyzer.getLongKline(7,4F);
+
+
+        String strOut = "test1";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 均线纠结
+     */
+    @Test
+    public void TEMP4() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(63,250,0.002F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(31,250,0.004F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+
+
+
+        String strOut = "test1";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 均线纠结
+     */
+    @Test
+    public void TEMP5() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        /* 筛选 */
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(5);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(10);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(5,10);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(10,20);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(20,63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(10,20,distance);
+
+        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
+        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
+
+        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
+        results = klineAnalyzer.getLongKline(7,4F);
+
+
+        String strOut = "test1";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 均线纠结
+     */
+    @Test
+    public void TEMP6() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(5,10,0.002F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(10,20,0.004F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(20,63);
+
+        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
+        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
+
+        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
+        results = klineAnalyzer.getLongKline(7,4F);
+
+        String strOut = "test1";
         FileUtil.writeTxtFile(strOut, results, true);
     }
 }

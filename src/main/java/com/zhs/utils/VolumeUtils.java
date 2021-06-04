@@ -1,5 +1,6 @@
 package com.zhs.utils;
 
+import com.zhs.entities.dict.RedGreen;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
@@ -36,5 +37,44 @@ public class VolumeUtils {
         hit = maxVol/average>=multiple;
 
         return hit;
+    }
+
+    /**
+     * 判断当前量是否为前一天的指定倍数
+     * 大量：指定天数尽量的1.5倍及以上。
+     * @param barSeries 日线数据
+     * @param days 天数
+     * @return
+     */
+    static public boolean isExpandVolume2(BarSeries barSeries, RedGreen redGreen, int days){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
+
+        for (int i = endIndex;i>endIndex-days;i--){
+            VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+            SMAIndicator vol_5_indicator = new SMAIndicator(volumeIndicator,5);
+            SMAIndicator vol_63_indicator = new SMAIndicator(volumeIndicator,63);
+
+            int vol_5 = vol_5_indicator.getValue(i).intValue();
+            int vol_63 = vol_63_indicator.getValue(i).intValue();
+            int current_vol = barSeries.getBar(i).getVolume().intValue();
+
+            float open = barSeries.getBar(i).getOpenPrice().floatValue();
+            float close = barSeries.getBar(i).getClosePrice().floatValue();
+
+            if(current_vol>vol_5 && current_vol>vol_63){
+                if(redGreen == RedGreen.RED){
+                    if(close>open){
+                        return true;
+                    }
+                }
+                if(redGreen == RedGreen.GREEN){
+                    if(close<open){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

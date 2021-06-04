@@ -181,13 +181,13 @@ public class AnalysisUtil {
         return isUp;
     }
 
-    public boolean isMaTrendUpwards(BarSeries barSeries,MovingAverage ma){
+    public boolean isMaTrendUpwards(BarSeries barSeries,int ma){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -223,13 +223,13 @@ public class AnalysisUtil {
         return isUp;
     }
 
-    public boolean isMaTrendDown(BarSeries barSeries, MovingAverage ma){
+    public boolean isMaTrendDown(BarSeries barSeries, int ma){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();

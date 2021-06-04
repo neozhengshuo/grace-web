@@ -25,13 +25,13 @@ public class TrendTradingStrategy8 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA144);
+        results = trendAnalyzer.getMaTrendUp(144);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA169);
+        results = trendAnalyzer.getMaTrendUp(169);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA5);
+        results = trendAnalyzer.getMaTrendDown(5);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA144);
@@ -55,16 +55,21 @@ public class TrendTradingStrategy8 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA63);
+        results = trendAnalyzer.getMaTrendUp(31);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA5);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        int days = 20;
+        float distance = 0.04F;
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA63);
+        results = trendAnalyzer.getPlatform(days,distance);
+
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA63);
 
         String strOut = "test";
-
         FileUtil.writeTxtFile(strOut, results, true);
     }
 
@@ -82,10 +87,10 @@ public class TrendTradingStrategy8 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA30);
+        results = trendAnalyzer.getMaTrendUp(30);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA5);
+        results = trendAnalyzer.getMaTrendDown(5);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.get_lower_price_touch_ma(MovingAverage.MA30);
@@ -104,7 +109,7 @@ public class TrendTradingStrategy8 {
 
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA5);
+        results = trendAnalyzer.getMaTrendUp(5);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getLowerShadow();

@@ -1,6 +1,5 @@
 package com.zhs.utils;
 
-import com.zhs.entities.dict.MovingAverage;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.EMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
@@ -15,13 +14,13 @@ public class MovingAverageUtil {
      * @param ma
      * @return
      */
-    public boolean isTrendUp(BarSeries barSeries, MovingAverage ma){
+    public boolean isTrendUp(BarSeries barSeries, int ma){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -42,13 +41,13 @@ public class MovingAverageUtil {
      * @param ma
      * @return
      */
-    public boolean isTrendDown(BarSeries barSeries, MovingAverage ma){
+    public boolean isTrendDown(BarSeries barSeries, int ma){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -72,15 +71,15 @@ public class MovingAverageUtil {
      * @param downMa 下方的均线
      * @return
      */
-    public boolean isTrendBetween(BarSeries barSeries, MovingAverage upMa,MovingAverage midMa,MovingAverage downMa){
+    public boolean isTrendBetween(BarSeries barSeries, int upMa, int midMa, int downMa){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa.getMaValue());
-        EMAIndicator midMa_smaIndicator =new EMAIndicator(closePriceIndicator,midMa.getMaValue());
-        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa.getMaValue());
+        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa);
+        EMAIndicator midMa_smaIndicator =new EMAIndicator(closePriceIndicator,midMa);
+        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa);
 
         float upMa_price = upMa_smaIndicator.getValue(endIndex).floatValue();
         float midMa_price = midMa_smaIndicator.getValue(endIndex).floatValue();
@@ -96,13 +95,13 @@ public class MovingAverageUtil {
      * @param secondMa
      * @return
      */
-    public boolean isMaPositionBelow(BarSeries barSeries,MovingAverage firstMa,MovingAverage secondMa){
+    public boolean isMaPositionBelow(BarSeries barSeries, int firstMa, int secondMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa.getMaValue());
-        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa.getMaValue());
+        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa);
+        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa);
 
         float current_first_ema_vol = first_ema_indicator.getValue(endIndex).floatValue();
         float current_second_ema_vol = second_ema_indicator.getValue(endIndex).floatValue();
@@ -117,13 +116,13 @@ public class MovingAverageUtil {
      * @param secondMa
      * @return
      */
-    public boolean isMaPositionAbove(BarSeries barSeries,MovingAverage firstMa,MovingAverage secondMa){
+    public boolean isMaPositionAbove(BarSeries barSeries, int firstMa, int secondMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa.getMaValue());
-        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa.getMaValue());
+        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa);
+        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa);
 
         float current_first_ema_vol = first_ema_indicator.getValue(endIndex).floatValue();
         float current_second_ema_vol = second_ema_indicator.getValue(endIndex).floatValue();
@@ -139,14 +138,14 @@ public class MovingAverageUtil {
      * @param distance
      * @return
      */
-    public boolean isMaDistance(BarSeries barSeries, MovingAverage upMa,MovingAverage downMa,float distance){
+    public boolean isMaDistance(BarSeries barSeries, int upMa, int downMa, float distance){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa.getMaValue());
-        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa.getMaValue());
+        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa);
+        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa);
 
         float upMa_price = upMa_smaIndicator.getValue(endIndex).floatValue();
         float down_price = downMa_smaIndicator.getValue(endIndex).floatValue();
@@ -163,13 +162,13 @@ public class MovingAverageUtil {
      * @param longMa 长周期
      * @return
      */
-    public boolean isMaGoldCross(BarSeries barSeries,MovingAverage shortMa,MovingAverage longMa){
+    public boolean isMaGoldCross(BarSeries barSeries, int shortMa, int longMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator short_ema_indicator = new EMAIndicator(closePriceIndicator,shortMa.getMaValue());
-        EMAIndicator long_ema_indicator = new EMAIndicator(closePriceIndicator,longMa.getMaValue());
+        EMAIndicator short_ema_indicator = new EMAIndicator(closePriceIndicator,shortMa);
+        EMAIndicator long_ema_indicator = new EMAIndicator(closePriceIndicator,longMa);
 
         float current_short_ema_vol = short_ema_indicator.getValue(endIndex).floatValue();
         float before_short_ema_vol = short_ema_indicator.getValue(endIndex-1).floatValue();
@@ -189,13 +188,13 @@ public class MovingAverageUtil {
      * @param belowMa
      * @return
      */
-    public boolean isPriceBetweenMa(BarSeries barSeries,MovingAverage aboveMa,MovingAverage belowMa){
+    public boolean isPriceBetweenMa(BarSeries barSeries, int aboveMa, int belowMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator above_ema_indicator = new EMAIndicator(closePriceIndicator,aboveMa.getMaValue());
-        EMAIndicator below_ema_indicator = new EMAIndicator(closePriceIndicator,belowMa.getMaValue());
+        EMAIndicator above_ema_indicator = new EMAIndicator(closePriceIndicator,aboveMa);
+        EMAIndicator below_ema_indicator = new EMAIndicator(closePriceIndicator,belowMa);
 
         float current_above_ema_vol = above_ema_indicator.getValue(endIndex).floatValue();
         float current_below_ema_vol = below_ema_indicator.getValue(endIndex).floatValue();
@@ -207,16 +206,15 @@ public class MovingAverageUtil {
     /**
      * 判断股价是否在某条均线的上面
      * @param barSeries
-     * @param aboveMa
-     * @param belowMa
+     * @param ma
      * @return
      */
-    public boolean isPriceAboveMa(BarSeries barSeries,MovingAverage ma){
+    public boolean isPriceAboveMa(BarSeries barSeries, int ma){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma);
 
         float ema_vol = ema_indicator.getValue(endIndex).floatValue();
         float close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
@@ -230,12 +228,12 @@ public class MovingAverageUtil {
      * @param ma
      * @return
      */
-    public boolean isPriceUnderMa(BarSeries barSeries,MovingAverage ma){
+    public boolean isPriceUnderMa(BarSeries barSeries, int ma){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma);
 
         float ema_vol = ema_indicator.getValue(endIndex).floatValue();
         float close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
@@ -250,13 +248,13 @@ public class MovingAverageUtil {
      * @param secondMa
      * @return
      */
-    public boolean isMaEqual(BarSeries barSeries,MovingAverage firstMa,MovingAverage secondMa){
+    public boolean isMaEqual(BarSeries barSeries, int firstMa, int secondMa){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema1_indicator = new EMAIndicator(closePriceIndicator,firstMa.getMaValue());
-        EMAIndicator ema2_indicator = new EMAIndicator(closePriceIndicator,secondMa.getMaValue());
+        EMAIndicator ema1_indicator = new EMAIndicator(closePriceIndicator,firstMa);
+        EMAIndicator ema2_indicator = new EMAIndicator(closePriceIndicator,secondMa);
 
         float ema1_vol = ema1_indicator.getValue(endIndex).floatValue();
         float ema2_vol = ema2_indicator.getValue(endIndex).floatValue();

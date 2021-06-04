@@ -14,7 +14,7 @@ import java.util.List;
 public class TrendTradingStrategy6 {
 
     /**
-     * 【趋势在可能反转之[前]-短期趋势比较】
+     * 【趋势反转[前]-短期趋势比较】
      * - 长周期均线、中周期均线向上
      * - 中周期均线在长周期均线下方
      * - 中周期均线和长周期均线之间的距离在0.05-0.08（取值范围）。
@@ -27,9 +27,9 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.06F;
 
         /* 筛选 */
@@ -46,9 +46,9 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -68,9 +68,9 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.08F;
 
         /* 筛选 */
@@ -90,9 +90,9 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getMaTrendBetween(longMa,shortMa,midMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -112,9 +112,9 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.08F;
 
         /* 筛选 */
@@ -131,12 +131,12 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getPriceUnderMa(MovingAverage.MA144);
+        results = trendAnalyzer.getPriceUnderMa(144);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -156,9 +156,9 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         /* 参数组 */
-        MovingAverage shortMa = MovingAverage.MA5;
-        MovingAverage midMa = MovingAverage.MA44;
-        MovingAverage longMa = MovingAverage.MA144;
+        int shortMa = 5;
+        int midMa = 44;
+        int longMa = 144;
         float distance = 0.12F;
 
         /* 筛选 */
@@ -178,9 +178,9 @@ public class TrendTradingStrategy6 {
         results = trendAnalyzer.getPriceBetweenMa(longMa,midMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
-                shortMa.getMaValue(),
-                midMa.getMaValue(),
-                longMa.getMaValue(),
+                shortMa,
+                midMa,
+                longMa,
                 distance);
         FileUtil.writeTxtFile(strOut, results, true);
     }
@@ -193,13 +193,13 @@ public class TrendTradingStrategy6 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA144);
+        results = trendAnalyzer.getMaTrendDown(144);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendDown(MovingAverage.MA44);
+        results = trendAnalyzer.getMaTrendDown(44);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(MovingAverage.MA5);
+        results = trendAnalyzer.getMaTrendUp(5);
 
         String strOut = "test";
 

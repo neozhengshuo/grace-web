@@ -109,7 +109,7 @@ public class TrendAnalyzer {
         return results;
     }
 
-    public List<String> getMaTrendUp(MovingAverage ma){
+    public List<String> getMaTrendUp(int ma){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -129,7 +129,7 @@ public class TrendAnalyzer {
      * @param distance
      * @return
      */
-    public List<String> getMaDistance(MovingAverage ma1,MovingAverage ma2,float distance){
+    public List<String> getMaDistance(int ma1, int ma2, float distance){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -158,7 +158,7 @@ public class TrendAnalyzer {
     /**
      * 对三条均线进行比较，某条均线是否在其他两条均线的中间。
      */
-    public List<String> getMaTrendBetween(MovingAverage upMa, MovingAverage midMa, MovingAverage downMa){
+    public List<String> getMaTrendBetween(int upMa, int midMa, int downMa){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -174,7 +174,7 @@ public class TrendAnalyzer {
 
 
 
-    public List<String> getMaTrendDown(MovingAverage ma){
+    public List<String> getMaTrendDown(int ma){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -210,7 +210,7 @@ public class TrendAnalyzer {
      * @param belowMa
      * @return
      */
-    public List<String> getPriceBetweenMa(MovingAverage aboveMa,MovingAverage belowMa){
+    public List<String> getPriceBetweenMa(int aboveMa,int belowMa){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -228,7 +228,7 @@ public class TrendAnalyzer {
      * @param ma
      * @return
      */
-    public List<String> getPriceUnderMa(MovingAverage ma){
+    public List<String> getPriceUnderMa(int ma){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -246,7 +246,7 @@ public class TrendAnalyzer {
      * @param ma
      * @return
      */
-    public List<String> getPriceAboveMa(MovingAverage ma){
+    public List<String> getPriceAboveMa(int ma){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
@@ -308,7 +308,7 @@ public class TrendAnalyzer {
         return results;
     }
 
-    public List<String> getMaGoldCross(MovingAverage shortMA, MovingAverage longMA){
+    public List<String> getMaGoldCross(int shortMA, int longMA){
         List<String> results = new ArrayList<>();
         for(String file:fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
@@ -327,7 +327,7 @@ public class TrendAnalyzer {
      * @param secondMa
      * @return
      */
-    public List<String> getMaPositionBelow(MovingAverage firstMa, MovingAverage secondMa){
+    public List<String> getMaPositionBelow(int firstMa, int secondMa){
         List<String> results = new ArrayList<>();
         for(String file:fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
@@ -346,7 +346,7 @@ public class TrendAnalyzer {
      * @param secondMa
      * @return
      */
-    public List<String> getMaPositionAbove(MovingAverage firstMa, MovingAverage secondMa){
+    public List<String> getMaPositionAbove(int firstMa, int secondMa){
         List<String> results = new ArrayList<>();
         for(String file:fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
@@ -631,7 +631,7 @@ public class TrendAnalyzer {
      * @param ma2
      * @return
      */
-    public List<String> getMaEqual(MovingAverage ma1,MovingAverage ma2){
+    public List<String> getMaEqual(int ma1,int ma2){
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
