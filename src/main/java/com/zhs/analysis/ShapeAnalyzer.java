@@ -12,26 +12,51 @@ import org.ta4j.core.indicators.helpers.VolumeIndicator;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 量缩价稳形态分析:
+ */
 public class ShapeAnalyzer {
     private final List<String> fileList;
+    private final int days;
+    private final float abovePricePercentage;
+    private final float underPricePercentage;
     private static final Logger logger = LoggerFactory.getLogger(ShapeAnalyzer.class);
+
+
+    public ShapeAnalyzer(List<String> fileList,int days,float abovePricePercentage, float underPricePercentage){
+        this.fileList = fileList;
+        this.days = days;
+        this.abovePricePercentage = abovePricePercentage;
+        this.underPricePercentage = underPricePercentage;
+    }
 
     public ShapeAnalyzer(List<String> fileList){
         this.fileList = fileList;
+        this.days = 5;
+        this.abovePricePercentage = 1.3F;
+        this.underPricePercentage = 0.5F;
     }
 
+    /**
+     * 判断是否在指定的天数里出现大量和长红K。
+     * @param barSeries
+     * @return
+     */
     private BarInfo isLargeAndLongKLine(BaseBarSeries barSeries){
         int endIndex = barSeries.getEndIndex();
-        if(endIndex<6) return null;
-        for (int i=endIndex;i>endIndex-5;i--){
-            Bar bar = barSeries.getBar(i);
+        if(endIndex<this.days+1) return null;
 
+        // 在指定天数内判断是否出现长红K
+        for (int i=endIndex;i>endIndex-this.days;i--){
+            Bar bar = barSeries.getBar(i);
             float current_open = bar.getOpenPrice().floatValue();
             float current_close = bar.getClosePrice().floatValue();
             float current_high = bar.getHighPrice().floatValue();
             float current_low = bar.getLowPrice().floatValue();
             float before_close = barSeries.getBar(i-1).getClosePrice().floatValue();
             float temp = (current_close-current_open)/current_close;
+
+            // 判断上涨幅度有没有大于3%
             if(temp>0.03){
                 VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
                 SMAIndicator vol_5_Indicator = new SMAIndicator(volumeIndicator,5);
@@ -39,6 +64,8 @@ public class ShapeAnalyzer {
                 int current_vol = bar.getVolume().intValue();
                 int vol_5 = vol_5_Indicator.getValue(i).intValue();
                 int vol_63 = vol_63_Indicator.getValue(i).intValue();
+
+                // 判断当前的量是否大于5日均量和63日均量
                 if(current_vol>vol_5 && current_vol>vol_63){
                     return new BarInfo(i,barSeries.getName(),bar.getSimpleDateName());
                 }
@@ -47,13 +74,22 @@ public class ShapeAnalyzer {
         return null;
     }
 
+    /**
+     * 判断价格是否在一定的范围内波动,且缩量。
+     * @param barSeries
+     * @param barInfo
+     * @return
+     */
     private boolean isPriceWithinRange(BaseBarSeries barSeries,BarInfo barInfo){
         int endIndex = barSeries.getEndIndex();
         Bar targetBar = barSeries.getBar(barInfo.getIndex());
-        float entityHalfPrice = this.getEntityHalfPrice(targetBar);
+//        float entityHalfPrice = this.getEntityHalfPrice(targetBar);
+        float underPrice = this.getUnderPrice(targetBar,this.underPricePercentage);
+        float abovePrice = this.getAbovePrice(targetBar,this.abovePricePercentage);
         for (int i = barInfo.getIndex()+1;i<=endIndex;i++){
-            boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()>entityHalfPrice;
-            if (!priceHit){
+            boolean abovePriceHit = barSeries.getBar(i).getClosePrice().floatValue()<abovePrice;
+            boolean underPriceHit = barSeries.getBar(i).getClosePrice().floatValue()>underPrice;
+            if (!underPriceHit || !abovePriceHit){
                 return false;
             }else{
                 int current_vol = barSeries.getBar(i).getVolume().intValue();
@@ -67,19 +103,43 @@ public class ShapeAnalyzer {
         return true;
     }
 
-    private float getEntityHalfPrice(Bar bar){
+    /**
+     * 计算长红K实体一半的价格。
+     * @param bar
+     * @return
+     */
+    private float getEntityHalfPrice(Bar bar, float abovePricePercentage, float underPricePercentage){
         return (bar.getClosePrice().floatValue()-bar.getOpenPrice().floatValue())/2+bar.getOpenPrice().floatValue();
     }
 
+    private float getAbovePrice(Bar bar,float abovePricePercentage){
+        float close = bar.getClosePrice().floatValue();
+        float open = bar.getOpenPrice().floatValue();
+        float solid = close-open;
+        return solid*abovePricePercentage+open;
+    }
+
+    private float getUnderPrice(Bar bar,float underPricePercentage){
+        float close = bar.getClosePrice().floatValue();
+        float open = bar.getOpenPrice().floatValue();
+        float solid = close-open;
+        return solid*underPricePercentage+open;
+//        return (bar.getClosePrice().floatValue()-bar.getOpenPrice().floatValue())*underPricePercentage+bar.getOpenPrice().floatValue();
+    }
+
+    /**
+     *
+     * @return
+     */
     public List<String> analyzer(){
         List<String> result = new ArrayList<>();
-
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
 //            logger.info(String.format("Loaded %s",file));
             BarInfo hitBarInfo = this.isLargeAndLongKLine(barSeries);
             if(hitBarInfo!=null){
-                if(barSeries.getEndIndex()-hitBarInfo.getIndex() == 4){
+                // 判断长红K棒是否出现在指定天数的第一天
+                if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
                     boolean hit = this.isPriceWithinRange(barSeries,hitBarInfo);
                     if (hit){
                         result.add(file);
