@@ -14,6 +14,9 @@ import java.util.List;
 
 /**
  * 量缩价稳形态分析:
+ * 1. 找到长红K棒，达到指定的参数值（上涨幅度）且量大于5日均量以及63日均量。
+ * 2. 根据形态的天数判断长红K棒后特定交易日（根据参数指定）内，股价没有跌破和突破指定的值。
+ * 3. 设长红K棒实体部分为1，如要设置没有突破长红K实体的3%，其值就为1.03，若要设置价没有跌至长红K实体的一半，其值为0.5。
  */
 public class ShapeAnalyzer {
     private final List<String> fileList;
@@ -23,6 +26,13 @@ public class ShapeAnalyzer {
     private static final Logger logger = LoggerFactory.getLogger(ShapeAnalyzer.class);
 
 
+    /**
+     * 量缩价稳形态分析。
+     * @param fileList 待分析的品种。
+     * @param days 形态天数
+     * @param abovePricePercentage 长红K后股价上涨的幅度，一般设置在1.0以上。
+     * @param underPricePercentage 长红K后股价上涨的幅度，一般设置在1.0以下。
+     */
     public ShapeAnalyzer(List<String> fileList,int days,float abovePricePercentage, float underPricePercentage){
         this.fileList = fileList;
         this.days = days;
@@ -57,7 +67,7 @@ public class ShapeAnalyzer {
             float temp = (current_close-current_open)/current_close;
 
             // 判断上涨幅度有没有大于3%
-            if(temp>0.03){
+            if(temp>0.025){
                 VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
                 SMAIndicator vol_5_Indicator = new SMAIndicator(volumeIndicator,5);
                 SMAIndicator vol_63_Indicator = new SMAIndicator(volumeIndicator,63);

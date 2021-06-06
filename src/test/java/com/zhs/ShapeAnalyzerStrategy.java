@@ -14,11 +14,20 @@ public class ShapeAnalyzerStrategy {
         List<String> results = new ArrayList<>();
         results = FileStockDailyData.getStockFilesWithFullPath();
 
-        ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results);
+
+        /**
+         * 确定标的后，在30分钟上按平台交易操作。
+         */
+        int days = 5;
+        float abovePricePercentage = 1.2F;
+        float underPricePercentage = 0.7F;
+        ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results,days,abovePricePercentage,underPricePercentage);
         results = shapeAnalyzer.analyzer();
+
+//        ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results);
+//        results = shapeAnalyzer.analyzer();
 
         String strOut = "test";
         FileUtil.writeTxtFile(strOut, results, true);
     }
-
 }
