@@ -85,32 +85,56 @@ public class ShapeAnalyzer {
     }
 
     /**
-     * 判断价格是否在一定的范围内波动,且缩量。
+     * 判断价格是否在一定的范围内波动,且缩量。并计算买点。
+     *
      * @param barSeries
      * @param barInfo
      * @return
      */
-    private boolean isPriceWithinRange(BaseBarSeries barSeries,BarInfo barInfo){
+    private BarInfo isPriceWithinRange(BaseBarSeries barSeries,BarInfo barInfo){
         int endIndex = barSeries.getEndIndex();
-        Bar targetBar = barSeries.getBar(barInfo.getIndex());
-//        float entityHalfPrice = this.getEntityHalfPrice(targetBar);
-        float underPrice = this.getUnderPrice(targetBar,this.underPricePercentage);
-        float abovePrice = this.getAbovePrice(targetBar,this.abovePricePercentage);
+        Bar longKBar = barSeries.getBar(barInfo.getIndex());
+
+        // 判断量和价在参数指定的范围内
+        //
+        float underPrice = this.getUnderPrice(longKBar,this.underPricePercentage);
+        float abovePrice = this.getAbovePrice(longKBar,this.abovePricePercentage);
+        boolean hit = false;
         for (int i = barInfo.getIndex()+1;i<=endIndex;i++){
             boolean abovePriceHit = barSeries.getBar(i).getClosePrice().floatValue()<abovePrice;
             boolean underPriceHit = barSeries.getBar(i).getClosePrice().floatValue()>underPrice;
             if (!underPriceHit || !abovePriceHit){
-                return false;
+                hit = false;
+                break;
             }else{
                 int current_vol = barSeries.getBar(i).getVolume().intValue();
-                int target_vol = targetBar.getVolume().intValue();
+                int target_vol = longKBar.getVolume().intValue();
                 boolean volHit =current_vol<target_vol;
                 if(!volHit){
-                    return false;
+                    hit = false;
+                    break;
+                }else{
+                    hit = true;
                 }
             }
         }
-        return true;
+
+        if(!hit){
+            return null;
+        }else{
+            // 计算买点
+            //
+            for (int i=barInfo.getIndex()+1;i<=endIndex;i++){
+                int current_vol = barSeries.getBar(i).getVolume().intValue();
+                int target_vol = longKBar.getVolume().intValue();
+                boolean lowerVolHit = current_vol<(target_vol/2);
+                boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()<=barSeries.getBar(i).getOpenPrice().floatValue();
+                if(lowerVolHit && priceHit){
+                    barInfo.setSignal("【BUY "+barSeries.getBar(i).getSimpleDateName()+"】");
+                }
+            }
+            return barInfo;
+        }
     }
 
     /**
@@ -150,10 +174,30 @@ public class ShapeAnalyzer {
             if(hitBarInfo!=null){
                 // 判断长红K棒是否出现在指定天数的第一天
                 if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
-                    boolean hit = this.isPriceWithinRange(barSeries,hitBarInfo);
-                    if (hit){
+                    BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
+                    if (barInfo != null){
                         result.add(file);
-                        logger.info(hitBarInfo.toString());
+                        logger.info(barInfo.toString());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<String> match(){
+        List<String> result = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+//            logger.info(String.format("Loaded %s",file));
+            BarInfo hitBarInfo = this.isLargeAndLongKLine(barSeries);
+            if(hitBarInfo!=null){
+                // 判断长红K棒是否出现在指定天数的第一天
+                if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
+                    BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
+                    if (barInfo != null){
+                        result.add(file);
+                        logger.info(barInfo.toString());
                     }
                 }
             }

@@ -4,6 +4,7 @@ public class BarInfo {
     private int index;
     private String barName;
     private String hitDate;
+    private String signal;
 
     public BarInfo() {
     }
@@ -12,6 +13,15 @@ public class BarInfo {
         this.index = index;
         this.barName = barName;
         this.hitDate = hitDate;
+        this.signal = "";
+    }
+
+    public String getSignal() {
+        return signal;
+    }
+
+    public void setSignal(String signal) {
+        this.signal += "\r\n"+signal;
     }
 
     public int getIndex() {
@@ -40,10 +50,20 @@ public class BarInfo {
 
     @Override
     public String toString() {
-        return "BarInfo{" +
-                "index=" + index +
-                ", barName='" + barName + '\'' +
-                ", hitDate='" + hitDate + '\'' +
-                '}';
+        if(this.signal != null){
+            return "BarInfo{" +
+                    "index=" + index +
+                    ", barName='" + barName + '\'' +
+                    ", hitDate='" + hitDate + '\'' +
+                    ", signal='" + signal + '\'' +
+                    '}';
+        }else{
+            return "BarInfo{" +
+                    "index=" + index +
+                    ", barName='" + barName + '\'' +
+                    ", hitDate='" + hitDate + '\'' +
+                    '}';
+        }
+
     }
 }
