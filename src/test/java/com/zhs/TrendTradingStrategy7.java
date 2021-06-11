@@ -185,6 +185,12 @@ public class TrendTradingStrategy7 {
         float distance = 0.002F;
 
         /* 筛选 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(31);
+
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(63);
+
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(31);
 
@@ -192,16 +198,10 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getMaTrendUp(144);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionAbove(31,63);
+        results = trendAnalyzer.getMaPositionAbove(5,31);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(31,63,distance);
-
-        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
-        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
-
-        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
-        results = klineAnalyzer.getLongKline(7,4F);
+        results = trendAnalyzer.getMaDistance(31,144,distance);
 
         String strOut = "test1";
         FileUtil.writeTxtFile(strOut, results, true);

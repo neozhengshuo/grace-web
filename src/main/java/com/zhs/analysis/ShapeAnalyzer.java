@@ -67,7 +67,7 @@ public class ShapeAnalyzer {
             float temp = (current_close-current_open)/current_close;
 
             // 判断上涨幅度有没有大于3%
-            if(temp>0.025){
+            if(temp>0.03){
                 VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
                 SMAIndicator vol_5_Indicator = new SMAIndicator(volumeIndicator,5);
                 SMAIndicator vol_63_Indicator = new SMAIndicator(volumeIndicator,63);
@@ -174,30 +174,17 @@ public class ShapeAnalyzer {
             if(hitBarInfo!=null){
                 // 判断长红K棒是否出现在指定天数的第一天
                 if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
-                    BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
-                    if (barInfo != null){
+                    // 如果this.days-1 == 0表示this.days参数的值为1，那么找到长红K就行了。
+                    if (this.days-1 == 0){
                         result.add(file);
-                        logger.info(barInfo.toString());
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    public List<String> match(){
-        List<String> result = new ArrayList<>();
-        for (String file:this.fileList){
-            BaseBarSeries barSeries = FileStockDailyData.load(file);
-//            logger.info(String.format("Loaded %s",file));
-            BarInfo hitBarInfo = this.isLargeAndLongKLine(barSeries);
-            if(hitBarInfo!=null){
-                // 判断长红K棒是否出现在指定天数的第一天
-                if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
-                    BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
-                    if (barInfo != null){
-                        result.add(file);
-                        logger.info(barInfo.toString());
+                        logger.info(hitBarInfo.toString());
+                    }else{
+                        // 计算长红K当日以后的价格是否在指定的区间。
+                        BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
+                        if (barInfo != null){
+                            result.add(file);
+                            logger.info(barInfo.toString());
+                        }
                     }
                 }
             }
