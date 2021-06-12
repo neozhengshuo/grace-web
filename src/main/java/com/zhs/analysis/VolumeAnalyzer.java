@@ -45,7 +45,7 @@ public class VolumeAnalyzer {
     }
 
     /**
-     * 当前量小于短周期和长周期均量
+     * 当天量小于短周期和长周期均量
      * @param shortMa 短周期
      * @param longMa 长周期
      * @return
@@ -56,6 +56,25 @@ public class VolumeAnalyzer {
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = VolumeUtils.isLowVolume(barSeries,shortMa,longMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 在指定天数内量小于短周期和长周期均量的
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    public List<String> getLowVolume(int days,int shortMa,int longMa){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isLowVolume(barSeries,days,shortMa,longMa);
             if(hit){
                 results.add(file);
             }
