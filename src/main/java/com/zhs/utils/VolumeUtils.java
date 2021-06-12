@@ -77,4 +77,23 @@ public class VolumeUtils {
         }
         return false;
     }
+
+    /**
+     * 判断当前量小于指定的短周期和长周期均量。
+     * @param barSeries
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    static public boolean isLowVolume(BarSeries barSeries,int shortMa,int longMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
+        int currentVol = barSeries.getBar(endIndex).getVolume().intValue();
+
+        return currentVol<shortMa && currentVol < longMa;
+
+    }
 }
