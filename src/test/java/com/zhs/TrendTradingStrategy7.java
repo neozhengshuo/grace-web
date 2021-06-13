@@ -1,6 +1,7 @@
 package com.zhs;
 
 import com.zhs.analysis.KLineAnalyzer;
+import com.zhs.analysis.ShapeAnalyzer;
 import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.analysis.VolumeAnalyzer;
 import com.zhs.datasource.FileStockDailyData;
@@ -184,6 +185,12 @@ public class TrendTradingStrategy7 {
         float distance = 0.002F;
 
         /* 筛选 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(31);
+
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(63);
+
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(31);
 
@@ -191,16 +198,10 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getMaTrendUp(144);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaPositionAbove(31,63);
+        results = trendAnalyzer.getMaPositionAbove(5,31);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(31,63,distance);
-
-        VolumeAnalyzer volumeStrategy = new VolumeAnalyzer(results);
-        results = volumeStrategy.getExpandVolume2(RedGreen.RED,7);
-
-        KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
-        results = klineAnalyzer.getLongKline(7,4F);
+        results = trendAnalyzer.getMaDistance(31,144,distance);
 
         String strOut = "test1";
         FileUtil.writeTxtFile(strOut, results, true);
@@ -266,7 +267,8 @@ public class TrendTradingStrategy7 {
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(250);
 
-
+//        ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results,6,1.5F,0.3F);
+//        results = shapeAnalyzer.analyzer();
 
 
         String strOut = "test1";
@@ -341,6 +343,44 @@ public class TrendTradingStrategy7 {
 
         KLineAnalyzer klineAnalyzer = new KLineAnalyzer(results);
         results = klineAnalyzer.getLongKline(7,4F);
+
+        String strOut = "test1";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * 多周期均线向上
+     */
+    @Test
+    public void TEMP7() {
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        float distance = 0.002F;
+
+        /* 筛选 */
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(30);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(63);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(250);
+
+//        int days = 1;
+//        int days = 3;
+//        int days = 4;
+//        int days = 5;
+        int days = 6;
+//        int days = 7;
+//        int days = 8;
+        float abovePricePercentage = 1.5F;
+        float underPricePercentage = 0.30F;
+        ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results,days,abovePricePercentage,underPricePercentage);
+        results = shapeAnalyzer.analyzer();
 
         String strOut = "test1";
         FileUtil.writeTxtFile(strOut, results, true);

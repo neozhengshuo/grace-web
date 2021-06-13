@@ -67,7 +67,7 @@ public class ShapeAnalyzer {
             float temp = (current_close-current_open)/current_close;
 
             // 判断上涨幅度有没有大于3%
-            if(temp>0.025){
+            if(temp>0.03){
                 VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
                 SMAIndicator vol_5_Indicator = new SMAIndicator(volumeIndicator,5);
                 SMAIndicator vol_63_Indicator = new SMAIndicator(volumeIndicator,63);
@@ -85,32 +85,56 @@ public class ShapeAnalyzer {
     }
 
     /**
-     * 判断价格是否在一定的范围内波动,且缩量。
+     * 判断价格是否在一定的范围内波动,且缩量。并计算买点。
+     *
      * @param barSeries
      * @param barInfo
      * @return
      */
-    private boolean isPriceWithinRange(BaseBarSeries barSeries,BarInfo barInfo){
+    private BarInfo isPriceWithinRange(BaseBarSeries barSeries,BarInfo barInfo){
         int endIndex = barSeries.getEndIndex();
-        Bar targetBar = barSeries.getBar(barInfo.getIndex());
-//        float entityHalfPrice = this.getEntityHalfPrice(targetBar);
-        float underPrice = this.getUnderPrice(targetBar,this.underPricePercentage);
-        float abovePrice = this.getAbovePrice(targetBar,this.abovePricePercentage);
+        Bar longKBar = barSeries.getBar(barInfo.getIndex());
+
+        // 判断量和价在参数指定的范围内
+        //
+        float underPrice = this.getUnderPrice(longKBar,this.underPricePercentage);
+        float abovePrice = this.getAbovePrice(longKBar,this.abovePricePercentage);
+        boolean hit = false;
         for (int i = barInfo.getIndex()+1;i<=endIndex;i++){
             boolean abovePriceHit = barSeries.getBar(i).getClosePrice().floatValue()<abovePrice;
             boolean underPriceHit = barSeries.getBar(i).getClosePrice().floatValue()>underPrice;
             if (!underPriceHit || !abovePriceHit){
-                return false;
+                hit = false;
+                break;
             }else{
                 int current_vol = barSeries.getBar(i).getVolume().intValue();
-                int target_vol = targetBar.getVolume().intValue();
+                int target_vol = longKBar.getVolume().intValue();
                 boolean volHit =current_vol<target_vol;
                 if(!volHit){
-                    return false;
+                    hit = false;
+                    break;
+                }else{
+                    hit = true;
                 }
             }
         }
-        return true;
+
+        if(!hit){
+            return null;
+        }else{
+            // 计算买点
+            //
+            for (int i=barInfo.getIndex()+1;i<=endIndex;i++){
+                int current_vol = barSeries.getBar(i).getVolume().intValue();
+                int target_vol = longKBar.getVolume().intValue();
+                boolean lowerVolHit = current_vol<(target_vol/2);
+                boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()<=barSeries.getBar(i).getOpenPrice().floatValue();
+                if(lowerVolHit && priceHit){
+                    barInfo.setSignal("【BUY "+barSeries.getBar(i).getSimpleDateName()+"】");
+                }
+            }
+            return barInfo;
+        }
     }
 
     private float getAbovePrice(Bar bar,float abovePricePercentage){
@@ -141,10 +165,17 @@ public class ShapeAnalyzer {
             if(hitBarInfo!=null){
                 // 判断长红K棒是否出现在指定天数的第一天
                 if(barSeries.getEndIndex()-hitBarInfo.getIndex() == this.days-1){
-                    boolean hit = this.isPriceWithinRange(barSeries,hitBarInfo);
-                    if (hit){
+                    // 如果this.days-1 == 0表示this.days参数的值为1，那么找到长红K就行了。
+                    if (this.days-1 == 0){
                         result.add(file);
                         logger.info(hitBarInfo.toString());
+                    }else{
+                        // 计算长红K当日以后的价格是否在指定的区间。
+                        BarInfo barInfo = this.isPriceWithinRange(barSeries,hitBarInfo);
+                        if (barInfo != null){
+                            result.add(file);
+                            logger.info(barInfo.toString());
+                        }
                     }
                 }
             }
