@@ -35,4 +35,24 @@ public class PriceAnalyzer {
         }
         return results;
     }
+
+    /**
+     * 当前价格在指定天数之前的价格（扣抵判断）
+     * @param day
+     * @return
+     */
+    public List<String> getPositionUnder(int day){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPositionUnder(barSeries,day);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+
 }

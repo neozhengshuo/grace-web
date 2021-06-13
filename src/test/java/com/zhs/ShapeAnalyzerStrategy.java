@@ -107,4 +107,38 @@ public class ShapeAnalyzerStrategy {
         String strOut = "test2";
         FileUtil.writeTxtFile(strOut, results, true);
     }
+
+    /**
+     * test
+     */
+    @Test
+    public void test3(){
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(5);
+
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionAbove(31);
+
+        priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionUnder(10);
+
+        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+        results = volumeAnalyzer.getLowVolume(5,63);
+
+
+
+//        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+//        results = volumeAnalyzer.getLowVolume(5,63);
+
+        String strOut = "test2";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
 }
