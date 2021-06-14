@@ -141,4 +141,81 @@ public class ShapeAnalyzerStrategy {
         String strOut = "test2";
         FileUtil.writeTxtFile(strOut, results, true);
     }
+
+    /**
+     * test
+     */
+    @Test
+    public void test4(){
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        // 趋势向上。
+        //
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
+
+        // 价格扣抵：价格在31日上、10日下。
+        //
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionAbove(31);
+
+        priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionUnder(10);
+
+        // 量缩：量小于5日、63日均量。
+        //
+        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+        results = volumeAnalyzer.getLowVolume(5,63);
+
+
+        String strOut = "test2";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    /**
+     * test
+     */
+    @Test
+    public void test5(){
+        List<String> paths = null;
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        // 趋势向上。
+        //
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
+
+        // 价格扣抵：价格在63日上、31日下。
+        //
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionAbove(63);
+
+        priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getPositionUnder(31);
+
+        // 量缩：量小于5日、63日均量。
+        //
+        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+        results = volumeAnalyzer.getLowVolume(5,63);
+
+        String strOut = "test2";
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
 }
