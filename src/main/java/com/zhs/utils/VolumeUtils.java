@@ -3,6 +3,7 @@ package com.zhs.utils;
 import com.zhs.entities.dict.RedGreen;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
+import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
 
 import java.util.ArrayList;
@@ -73,6 +74,56 @@ public class VolumeUtils {
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断当前量小于指定的短周期和长周期均量。
+     * @param barSeries
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    static public boolean isLowVolume(BarSeries barSeries,int shortMa,int longMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
+
+        float currentVol = barSeries.getBar(endIndex).getVolume().floatValue();
+        float shortVol = shortSmaIndicator.getValue(endIndex).floatValue();
+        float longVol = longSmaIndicator.getValue(endIndex).floatValue();
+
+        return currentVol<shortVol && currentVol < longVol;
+
+    }
+
+    /**
+     * 判断当前量是否为特定天数内，小于指定的短周期和长周期均量。
+     * @param barSeries
+     * @param days 特定的天数
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    static public boolean isLowVolume(BarSeries barSeries,int days,int shortMa,int longMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex < days+1) return false;
+
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
+
+        for (int i = endIndex;i>endIndex-days;i--){
+            int currentVol = barSeries.getBar(i).getVolume().intValue();
+            int shortVol = shortSmaIndicator.getValue(i).intValue();
+            int longVol = longSmaIndicator.getValue(i).intValue();
+
+            if (currentVol < shortVol && currentVol< longVol){
+                return true;
             }
         }
         return false;

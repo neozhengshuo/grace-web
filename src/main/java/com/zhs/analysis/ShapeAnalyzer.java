@@ -27,7 +27,7 @@ public class ShapeAnalyzer {
 
 
     /**
-     * 量缩价稳形态分析。
+     * 量缩价稳形态分析。确定标的后，在30分钟上按平台交易操作。
      * @param fileList 待分析的品种。
      * @param days 形态天数
      * @param abovePricePercentage 长红K后股价上涨的幅度，一般设置在1.0以上。
@@ -135,15 +135,6 @@ public class ShapeAnalyzer {
             }
             return barInfo;
         }
-    }
-
-    /**
-     * 计算长红K实体一半的价格。
-     * @param bar
-     * @return
-     */
-    private float getEntityHalfPrice(Bar bar, float abovePricePercentage, float underPricePercentage){
-        return (bar.getClosePrice().floatValue()-bar.getOpenPrice().floatValue())/2+bar.getOpenPrice().floatValue();
     }
 
     private float getAbovePrice(Bar bar,float abovePricePercentage){
