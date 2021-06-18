@@ -1,8 +1,8 @@
 package com.zhs.analysis;
 
 import com.zhs.datasource.FileStockDailyData;
-import com.zhs.utils.KDUtil;
-import com.zhs.utils.VolumeUtils;
+import com.zhs.indicator.RsvIndicator;
+import com.zhs.utils.KdjUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseBarSeries;
@@ -23,7 +23,7 @@ public class KDAnalyzer {
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = KDUtil.isKLow(barSeries,k);
+            boolean hit = KdjUtil.isKLow(barSeries,k);
             if(hit){
                 results.add(file);
             }
@@ -36,7 +36,49 @@ public class KDAnalyzer {
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = KDUtil.isKLow(barSeries,days,k);
+            boolean hit = KdjUtil.isKLow(barSeries,days,k);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getKdjLow(float k,float d,float j){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            RsvIndicator rsvIndicator = new RsvIndicator(barSeries,9);
+            boolean hit = KdjUtil.isKdjLow(rsvIndicator,k,d,j);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getJUp(float j){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            RsvIndicator rsvIndicator = new RsvIndicator(barSeries,9);
+            boolean hit = KdjUtil.isJUp(rsvIndicator,j);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getJUpWithVolume(float j){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            RsvIndicator rsvIndicator = new RsvIndicator(barSeries,9);
+            boolean hit = KdjUtil.isJUpWithVolume(rsvIndicator,j,5,63);
             if(hit){
                 results.add(file);
             }

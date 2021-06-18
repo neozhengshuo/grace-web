@@ -1,7 +1,8 @@
 package com.zhs.utils;
 
 import org.ta4j.core.BarSeries;
-import org.ta4j.core.indicators.EMAIndicator;
+
+import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 import java.math.BigDecimal;
@@ -20,7 +21,7 @@ public class MovingAverageUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -47,7 +48,7 @@ public class MovingAverageUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -77,9 +78,9 @@ public class MovingAverageUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa);
-        EMAIndicator midMa_smaIndicator =new EMAIndicator(closePriceIndicator,midMa);
-        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa);
+        SMAIndicator upMa_smaIndicator =new SMAIndicator(closePriceIndicator,upMa);
+        SMAIndicator midMa_smaIndicator =new SMAIndicator(closePriceIndicator,midMa);
+        SMAIndicator downMa_smaIndicator =new SMAIndicator(closePriceIndicator,downMa);
 
         float upMa_price = upMa_smaIndicator.getValue(endIndex).floatValue();
         float midMa_price = midMa_smaIndicator.getValue(endIndex).floatValue();
@@ -100,8 +101,8 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa);
-        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa);
+        SMAIndicator first_ema_indicator = new SMAIndicator(closePriceIndicator,firstMa);
+        SMAIndicator second_ema_indicator = new SMAIndicator(closePriceIndicator,secondMa);
 
         float current_first_ema_vol = first_ema_indicator.getValue(endIndex).floatValue();
         float current_second_ema_vol = second_ema_indicator.getValue(endIndex).floatValue();
@@ -121,8 +122,8 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator first_ema_indicator = new EMAIndicator(closePriceIndicator,firstMa);
-        EMAIndicator second_ema_indicator = new EMAIndicator(closePriceIndicator,secondMa);
+        SMAIndicator first_ema_indicator = new SMAIndicator(closePriceIndicator,firstMa);
+        SMAIndicator second_ema_indicator = new SMAIndicator(closePriceIndicator,secondMa);
 
         float current_first_ema_vol = first_ema_indicator.getValue(endIndex).floatValue();
         float current_second_ema_vol = second_ema_indicator.getValue(endIndex).floatValue();
@@ -144,8 +145,8 @@ public class MovingAverageUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator upMa_smaIndicator =new EMAIndicator(closePriceIndicator,upMa);
-        EMAIndicator downMa_smaIndicator =new EMAIndicator(closePriceIndicator,downMa);
+        SMAIndicator upMa_smaIndicator =new SMAIndicator(closePriceIndicator,upMa);
+        SMAIndicator downMa_smaIndicator =new SMAIndicator(closePriceIndicator,downMa);
 
         float upMa_price = upMa_smaIndicator.getValue(endIndex).floatValue();
         float down_price = downMa_smaIndicator.getValue(endIndex).floatValue();
@@ -167,8 +168,8 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator short_ema_indicator = new EMAIndicator(closePriceIndicator,shortMa);
-        EMAIndicator long_ema_indicator = new EMAIndicator(closePriceIndicator,longMa);
+        SMAIndicator short_ema_indicator = new SMAIndicator(closePriceIndicator,shortMa);
+        SMAIndicator long_ema_indicator = new SMAIndicator(closePriceIndicator,longMa);
 
         float current_short_ema_vol = short_ema_indicator.getValue(endIndex).floatValue();
         float before_short_ema_vol = short_ema_indicator.getValue(endIndex-1).floatValue();
@@ -193,8 +194,8 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator above_ema_indicator = new EMAIndicator(closePriceIndicator,aboveMa);
-        EMAIndicator below_ema_indicator = new EMAIndicator(closePriceIndicator,belowMa);
+        SMAIndicator above_ema_indicator = new SMAIndicator(closePriceIndicator,aboveMa);
+        SMAIndicator below_ema_indicator = new SMAIndicator(closePriceIndicator,belowMa);
 
         float current_above_ema_vol = above_ema_indicator.getValue(endIndex).floatValue();
         float current_below_ema_vol = below_ema_indicator.getValue(endIndex).floatValue();
@@ -214,7 +215,7 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator ema_indicator = new SMAIndicator(closePriceIndicator,ma);
 
         float ema_vol = ema_indicator.getValue(endIndex).floatValue();
         float close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
@@ -233,7 +234,7 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema_indicator = new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator ema_indicator = new SMAIndicator(closePriceIndicator,ma);
 
         float ema_vol = ema_indicator.getValue(endIndex).floatValue();
         float close_price = barSeries.getBar(endIndex).getClosePrice().floatValue();
@@ -253,8 +254,8 @@ public class MovingAverageUtil {
         if(endIndex<=0) return false;
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
-        EMAIndicator ema1_indicator = new EMAIndicator(closePriceIndicator,firstMa);
-        EMAIndicator ema2_indicator = new EMAIndicator(closePriceIndicator,secondMa);
+        SMAIndicator ema1_indicator = new SMAIndicator(closePriceIndicator,firstMa);
+        SMAIndicator ema2_indicator = new SMAIndicator(closePriceIndicator,secondMa);
 
         float ema1_vol = ema1_indicator.getValue(endIndex).floatValue();
         float ema2_vol = ema2_indicator.getValue(endIndex).floatValue();

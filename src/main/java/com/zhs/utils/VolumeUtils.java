@@ -128,4 +128,24 @@ public class VolumeUtils {
         }
         return false;
     }
+
+    /**
+     * 判断第一个均量是否大于第二个均量
+     * @param barSeries
+     * @param shortMa
+     * @param longMa
+     * @return
+     */
+    static public boolean isVolumeAbove(BarSeries barSeries,int shortMa,int longMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
+
+        float shortVol = shortSmaIndicator.getValue(endIndex).floatValue();
+        float longVol = longSmaIndicator.getValue(endIndex).floatValue();
+
+        return shortVol > longVol;
+    }
 }

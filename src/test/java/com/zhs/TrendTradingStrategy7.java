@@ -156,17 +156,49 @@ public class TrendTradingStrategy7 {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         // 均线距离
-        float distance = 0.001F;
+        float distance = 0.002F;
 
-        /* 筛选 */
+        // 趋势
+        //
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(31);
+
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(63);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(144);
+        results = trendAnalyzer.getMaPositionAbove(31,63);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaTrendUp(250);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaPositionAbove(63,250);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaPositionAbove(31,63);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaPositionAbove(31,250);
 
+        // 均线距离
+        //
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaDistance(11,18,distance);
+//
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaDistance(18,31,distance);
+//
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(5,63,distance);
+        results = trendAnalyzer.getMaDistance(31,63,distance);
+
+        // 量缩：量小于5日、63日均量。
+        //
+//        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+//        results = volumeAnalyzer.getLowVolume(5,63);
+
+//        trendAnalyzer = new TrendAnalyzer(results);
+//        results = trendAnalyzer.getMaDistance(5,63,distance);
 
         String strOut = "test";
         FileUtil.writeTxtFile(strOut, results, true);

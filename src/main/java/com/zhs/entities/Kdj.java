@@ -7,6 +7,27 @@ public class Kdj {
     private float k;
     private float d;
     private float j;
+    private float rsv;
+    private int index;
+
+    public Kdj() {
+    }
+
+    public float getRsv() {
+        return rsv;
+    }
+
+    public void setRsv(float rsv) {
+        this.rsv = rsv;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 
     public String getDateTime() {
         return dateTime;
@@ -49,6 +70,13 @@ public class Kdj {
 
     @Override
     public String toString() {
-        return String.format("DateTime:%s K:%s D:%s J:%s",dateTime,k,d,j);
+        return "Kdj{" +
+                "dateTime='" + dateTime + '\'' +
+                ", k=" + k +
+                ", d=" + d +
+                ", j=" + j +
+                ", rsv=" + rsv +
+                ", index=" + index +
+                '}';
     }
 }

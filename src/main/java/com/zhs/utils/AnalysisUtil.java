@@ -187,13 +187,13 @@ public class AnalysisUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
             float beforeSMA = smaIndicator.getValue(i-1).floatValue();
 
-            if(currentSMA>beforeSMA){
+            if(currentSMA>=beforeSMA){
                 isUp = true;
             }else{
                 break;
@@ -208,7 +208,7 @@ public class AnalysisUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma.getMaValue());
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma.getMaValue());
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
@@ -229,7 +229,7 @@ public class AnalysisUtil {
         if(endIndex<0) return false;
 
         ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        EMAIndicator smaIndicator =new EMAIndicator(closePriceIndicator,ma);
+        SMAIndicator smaIndicator =new SMAIndicator(closePriceIndicator,ma);
 
         for(int i = endIndex;i>=1;i--){
             float currentSMA = smaIndicator.getValue(i).floatValue();
