@@ -41,7 +41,7 @@ public class VolumeReduction_StablePrice {
 
 
     /**
-     * 价在18日线上，5日线下
+     * 趋势向上，18MA支撑
      */
     @Test
     public void test1(){
@@ -74,14 +74,18 @@ public class VolumeReduction_StablePrice {
 
         // J值在低档向上
         KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
-        results = kdAnalyzer.getJUp(0);
+        results = kdAnalyzer.getJUp(10);
 
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, this.results, true);
+        // 当天价格上涨
+        priceAnalyzer = new PriceAnalyzer(this.results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
     /**
-     * 价格在31日上、10日下。
+     * 趋势向上，31MA支撑。
      */
     @Test
     public void test2(){
@@ -102,12 +106,16 @@ public class VolumeReduction_StablePrice {
         KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
         results = kdAnalyzer.getJUp(0);
 
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, results, true);
+        // 当天价格上涨
+        priceAnalyzer = new PriceAnalyzer(this.results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
     /**
-     * 价格扣抵：价格在63日上、31日下。
+     * 价格扣抵：63MA支撑。
      */
     @Test
     public void test3(){
@@ -128,20 +136,19 @@ public class VolumeReduction_StablePrice {
         KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
         results = kdAnalyzer.getJUp(0);
 
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, results, true);
+        // 当天价格上涨
+        priceAnalyzer = new PriceAnalyzer(this.results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
+    /**
+     * 趋势向上，忽略支撑
+     */
     @Test
     public void test4(){
-        // 价格扣抵：价格在63日上、31日下。
-        //
-//        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(this.results);
-//        results = priceAnalyzer.getPositionAbove(63);
-//
-//        priceAnalyzer = new PriceAnalyzer(this.results);
-//        results = priceAnalyzer.getPositionUnder(31);
-
         // 量缩：量小于5日、63日均量。
         //
         VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(this.results);
@@ -154,10 +161,17 @@ public class VolumeReduction_StablePrice {
         kdAnalyzer = new KDAnalyzer(results);
         results = kdAnalyzer.getJUp(0);
 
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, results, true);
+        // 当天价格上涨
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(this.results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
+    /**
+     * 趋势向上，63MA支撑。
+     */
     @Test
     public void test6(){
         // 价格扣抵：价格在63日上、31日下。
@@ -177,39 +191,18 @@ public class VolumeReduction_StablePrice {
         KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
         results = kdAnalyzer.getJUp(10);
 
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, results, true);
+        // 当天价格上涨
+        priceAnalyzer = new PriceAnalyzer(this.results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 
     @Test
     public void temp(){
-        // 价格扣抵：价格在63日上、31日下。
-        //
-//        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(this.results);
-//        results = priceAnalyzer.getPositionAbove(63);
-//
-//        priceAnalyzer = new PriceAnalyzer(this.results);
-//        results = priceAnalyzer.getPositionUnder(31);
-
-        // 量缩：量小于5日、63日均量。
-        //
-        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(this.results);
-        results = volumeAnalyzer.getVolumeAbove(5,63);
-
-
-        KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
-        results = kdAnalyzer.getJUp(30);
-
-//        KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
-//        results = kdAnalyzer.getJUpWithVolume(0);
-
-//        String strOut = "test2";
-//        FileUtil.writeTxtFile(strOut, results, true);
+//        String out = Thread.currentThread().getStackTrace()[1].getMethodName();
+//        System.out.println(out);
     }
 
-    @AfterEach
-    public void outputResults(){
-        String outTxt = "results";
-        FileUtil.writeTxtFile(outTxt, this.results, true);
-    }
 }

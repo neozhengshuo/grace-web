@@ -28,4 +28,18 @@ public class PriceUnit {
         float daysBeforePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
         return currentPrice<daysBeforePrice;
     }
+
+    /**
+     * 判断当天价格是否上涨。
+     * @param barSeries
+     * @return
+     */
+    public static boolean isCurrentPriceUp(BarSeries barSeries){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        return currentClosePrice>=currentOpenPrice;
+    }
 }

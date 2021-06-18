@@ -93,9 +93,9 @@ public class VolumeUtils {
         SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
         SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
 
-        float currentVol = barSeries.getBar(endIndex).getVolume().floatValue();
-        float shortVol = shortSmaIndicator.getValue(endIndex).floatValue();
-        float longVol = longSmaIndicator.getValue(endIndex).floatValue();
+        int currentVol = barSeries.getBar(endIndex).getVolume().intValue();
+        int shortVol = shortSmaIndicator.getValue(endIndex).intValue();
+        int longVol = longSmaIndicator.getValue(endIndex).intValue();
 
         return currentVol<shortVol && currentVol < longVol;
 

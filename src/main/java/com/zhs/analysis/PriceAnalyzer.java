@@ -54,5 +54,23 @@ public class PriceAnalyzer {
         return results;
     }
 
+    /**
+     * 判断当天价格是否上涨。
+     * @param day
+     * @return
+     */
+    public List<String> getCurrentPriceUp(){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isCurrentPriceUp(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
 
 }
