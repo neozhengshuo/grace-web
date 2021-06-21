@@ -42,6 +42,10 @@ public class TrendUpIndicator extends CachedIndicator<Boolean> {
         boolean posHit2 = midSmaIndicator.getValue(i).floatValue()>longSmaIndicator.getValue(i).floatValue();
         boolean posHit = posHit1 && posHit2;
 
+////        boolean posHit1 = shortSmaIndicator.getValue(i).floatValue()>midSmaIndicator.getValue(i).floatValue();
+//        boolean posHit2 = midSmaIndicator.getValue(i).floatValue()>longSmaIndicator.getValue(i).floatValue();
+//        boolean posHit = posHit2;
+
         return trendHit && posHit;
     }
 }

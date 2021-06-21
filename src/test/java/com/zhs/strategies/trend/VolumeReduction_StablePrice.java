@@ -6,12 +6,9 @@ import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.analysis.VolumeAnalyzer;
 import com.zhs.datasource.FileStockDailyData;
 import com.zhs.utils.FileUtil;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.springframework.test.context.event.annotation.AfterTestMethod;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
+
 
 import java.util.ArrayList;
 import java.util.List;
