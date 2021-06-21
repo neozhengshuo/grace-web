@@ -44,8 +44,8 @@ public class AnalysisUtil {
         StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
                 new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
-        DIndicator d = new DIndicator(k);
-        JIndicator j = new JIndicator(k,d);
+        DIndicator d = new DIndicator(stochasticOscillatorKIndicator);
+        JIndicator j = new JIndicator(stochasticOscillatorKIndicator);
 
         for(int i = 0;i <= barSeries.getEndIndex();i++){
             Kdj kdj = new Kdj(barSeries.getBar(i).getDateName(),
@@ -67,7 +67,7 @@ public class AnalysisUtil {
         StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
                 new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
-        DIndicator d = new DIndicator(k);
+        DIndicator d = new DIndicator(stochasticOscillatorKIndicator);
         int endIndex = barSeries.getEndIndex();
         float kValue = k.getValue(endIndex).floatValue();
         float dValue = d.getValue(endIndex).floatValue();
@@ -563,8 +563,8 @@ public class AnalysisUtil {
         StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
                 new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
-        DIndicator d = new DIndicator(k);
-        JIndicator j = new JIndicator(k,d);
+        DIndicator d = new DIndicator(stochasticOscillatorKIndicator);
+        JIndicator j = new JIndicator(stochasticOscillatorKIndicator);
 
         float current_k = k.getValue(endIndex).floatValue();
         float prev1_k = k.getValue(endIndex-1).floatValue();
@@ -1069,7 +1069,7 @@ public class AnalysisUtil {
         // k快，d慢
         StochasticOscillatorKIndicator rsv = new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(rsv);
-        DIndicator d = new DIndicator(k);
+        DIndicator d = new DIndicator(rsv);
 
         int currentIndex = barSeries.getEndIndex();
 
@@ -1140,8 +1140,8 @@ public class AnalysisUtil {
         // k快，d慢，j最快
         StochasticOscillatorKIndicator rsv = new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(rsv);
-        DIndicator d = new DIndicator(k);
-        JIndicator j = new JIndicator(k,d);
+        DIndicator d = new DIndicator(rsv);
+        JIndicator j = new JIndicator(rsv);
 
         int currentIndex = barSeries.getEndIndex();
         float currentJ = j.getValue(currentIndex).floatValue();
@@ -1169,8 +1169,8 @@ public class AnalysisUtil {
         StochasticOscillatorKIndicator stochasticOscillatorKIndicator =
                 new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(stochasticOscillatorKIndicator);
-        DIndicator d = new DIndicator(k);
-        JIndicator j = new JIndicator(k,d);
+        DIndicator d = new DIndicator(stochasticOscillatorKIndicator);
+        JIndicator j = new JIndicator(stochasticOscillatorKIndicator);
 
 //        StochasticOscillatorKIndicator k =
 //                new StochasticOscillatorKIndicator(barSeries,9);
@@ -1196,8 +1196,8 @@ public class AnalysisUtil {
         // k快，d慢，j最快
         StochasticOscillatorKIndicator rsv = new StochasticOscillatorKIndicator(barSeries,9);
         KIndicator k = new KIndicator(rsv);
-        DIndicator d = new DIndicator(k);
-        JIndicator j = new JIndicator(k,d);
+        DIndicator d = new DIndicator(rsv);
+        JIndicator j = new JIndicator(rsv);
 
         int endIndex = barSeries.getEndIndex();
         if(endIndex>0){

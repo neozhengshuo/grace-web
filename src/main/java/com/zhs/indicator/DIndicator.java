@@ -1,34 +1,62 @@
 package com.zhs.indicator;
 
+import com.zhs.entities.Kdj;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.Indicator;
 import org.ta4j.core.indicators.CachedIndicator;
+import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
 import org.ta4j.core.num.Num;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DIndicator extends CachedIndicator<Num> {
     private Indicator<Num> indicator;
+    private List<Kdj> kdjList = null;
 
-    public DIndicator(KIndicator k) {
-        super(k);
-        indicator = k;
+    public DIndicator(StochasticOscillatorKIndicator rsv) {
+        super(rsv);
+        indicator = rsv;
     }
 
     @Override
     protected Num calculate(int index) {
-        Num a = this.numOf(2/3);
-        Num b = this.numOf(1/3);
-        if(index == 0 ) return numOf(50);
-        Num preD = getValue(index-1);
-        Num d1 = a.multipliedBy(preD);
-        Num d2 = b.multipliedBy(this.indicator.getValue(index));
-        Num d = d1.minus(d2);
-        return d;
+        if(kdjList == null){
+            kdjList = new ArrayList<>();
+            int endIndex = this.getBarSeries().getEndIndex();
+            for (int i=0;i<=endIndex;i++){
+                Kdj kdj = new Kdj();
+                kdj.setIndex(i);
+                kdj.setRsv(this.indicator.getValue(i).floatValue());
+                kdj.setDateTime(this.getBarSeries().getBar(i).getSimpleDateName());
+                this.kdjList.add(kdj);
+                if(i == 0){
+                    this.kdjList.get(i).setK(50);
+                    this.kdjList.get(i).setD(50);
+                    this.kdjList.get(i).setJ(50);
+                }else
+                {
+                    float x = 2/3F;
+                    float y = 1/3F;
 
-//        if(index == 0) return numOf(50);
-//        Num preD = getValue(index - 1);
-//        Num d1 = numOf(1).multipliedBy(this.indicator.getValue(index));
-//        Num d2 = numOf(2).multipliedBy(preD);
-//        Num d1_d2 = d1.plus(d2);
-//        return d1_d2.dividedBy(numOf(3));
+                    // 计算K值
+                    float k1 = (x*this.kdjList.get(i-1).getK());
+                    float k2 = (y*this.kdjList.get(i).getRsv());
+                    this.kdjList.get(i).setK(k1+k2);
+
+                    // 计算D值
+                    float d1 = (x*this.kdjList.get(i-1).getD());
+                    float d2 = (y*this.kdjList.get(i).getK());
+                    this.kdjList.get(i).setD(d1+d2);
+
+                    // 计算J值
+                    float j1 = 3F*this.kdjList.get(i).getK();
+                    float j2 = 2F*this.kdjList.get(i).getD();
+                    this.kdjList.get(i).setJ(j1-j2);
+                }
+            }
+        }
+
+        return numOf(kdjList.get(index).getD());
     }
 }

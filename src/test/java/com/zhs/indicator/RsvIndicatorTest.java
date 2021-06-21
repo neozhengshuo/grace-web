@@ -1,13 +1,11 @@
 package com.zhs.indicator;
 
 import com.zhs.datasource.FileStockDailyData;
-import com.zhs.entities.Kdj;
+import com.zhs.entities.dict.UpDown;
 import org.junit.jupiter.api.Test;
 import org.ta4j.core.BaseBarSeries;
-import org.ta4j.core.indicators.StochasticOscillatorDIndicator;
 import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RsvIndicatorTest {
@@ -21,17 +19,18 @@ public class RsvIndicatorTest {
         int endIndex = barSeries.getEndIndex();
         System.out.println("End Index:"+endIndex);
 
-        StochasticOscillatorKIndicator stochasticOscillatorKIndicator = new StochasticOscillatorKIndicator(barSeries,9);
-        KIndicator kIndicator = new KIndicator(stochasticOscillatorKIndicator);
-        System.out.println(kIndicator.getValue(endIndex));
 
-//
+        TrendUpIndicator trendUpIndicator = new TrendUpIndicator(barSeries,31,63,250);
+        System.out.println(trendUpIndicator.getValue(endIndex));
+
+
 //        RsvIndicator rsvIndicator = new RsvIndicator(barSeries,9);
 //        KdjIndicator kdj_kIndicator = new KdjIndicator(rsvIndicator);
-//
-//        for (int i = 0;i<kdjList.stream().count();i++){
-//            System.out.println(kdj_kIndicator.getKdj());
-//        }
+
+        StochasticOscillatorKIndicator rsv = new StochasticOscillatorKIndicator(barSeries,9);
+        KIndicator k = new KIndicator(rsv);
+        System.out.println(k.getValue(endIndex));
+
 
     }
 }
