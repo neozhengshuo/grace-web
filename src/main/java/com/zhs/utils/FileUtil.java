@@ -167,4 +167,18 @@ public class FileUtil {
 
         return foreignList;
     }
+
+    public static void writeResultsToFile(String fileFullPath,List<String> results) throws IOException {
+        File file = new File(fileFullPath);
+        if(!file.exists()){
+            boolean created = file.createNewFile();
+        }
+
+        FileWriter fileWriter = null;
+        fileWriter = new FileWriter(file,true);
+        for (String item:results){
+            fileWriter.write(item+"\r\n");
+        }
+        fileWriter.close();
+    }
 }

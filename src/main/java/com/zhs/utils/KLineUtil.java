@@ -1,5 +1,7 @@
 package com.zhs.utils;
 
+import com.zhs.entities.BarInfo;
+import com.zhs.indicator.KLinePatternIndicator;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
@@ -56,7 +58,21 @@ public class KLineUtil {
                 }
             }
         }
-
         return false;
+    }
+
+    static public BarInfo isKlinePattern(BarSeries barSeries){
+        KLinePatternIndicator indicator = new KLinePatternIndicator(barSeries);
+        int endIndex = barSeries.getEndIndex();
+        for(int i = endIndex;i>=0;i--){
+            boolean hit = indicator.getValue(i);
+            if(hit){
+                BarInfo barInfo = new BarInfo();
+                barInfo.setBarName(barSeries.getName());
+                barInfo.setHitDate(barSeries.getBar(i).getSimpleDateName());
+                return barInfo;
+            }
+        }
+        return null;
     }
 }

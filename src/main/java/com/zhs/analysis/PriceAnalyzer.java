@@ -72,5 +72,37 @@ public class PriceAnalyzer {
         return results;
     }
 
+    /**
+     * 当前价接触到指定均线，但收盘价在指定均线之上
+     * */
+    public List<String> getCurrentPriceTouchMa(int ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isCurrentPriceTouchMa(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 当前价格在指定均线的上方
+     * */
+    public List<String> getCurrentPriceAboveMa(int ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isCurrentPriceAboveMa(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
 
 }

@@ -14,6 +14,9 @@ public class TrendUpIndicator extends CachedIndicator<Boolean> {
     private final int shortTrendDays;
     private final int midTrendDays;
     private final int longTrendDays;
+    private final SMAIndicator shortSmaIndicator;
+    private final SMAIndicator midSmaIndicator;
+    private final SMAIndicator longSmaIndicator;
 
     public TrendUpIndicator(BarSeries barSeries, int shortTrendDays,int midTrendDays,int longTrendDays){
         super(barSeries);
@@ -21,6 +24,10 @@ public class TrendUpIndicator extends CachedIndicator<Boolean> {
         this.shortTrendDays = shortTrendDays;
         this.midTrendDays = midTrendDays;
         this.longTrendDays = longTrendDays;
+        this.shortSmaIndicator =new SMAIndicator(new ClosePriceIndicator(barSeries),shortTrendDays);
+        this.midSmaIndicator =new SMAIndicator(new ClosePriceIndicator(barSeries),midTrendDays);
+        this.longSmaIndicator =new SMAIndicator(new ClosePriceIndicator(barSeries),longTrendDays);
+
     }
 
     @Override
@@ -28,10 +35,10 @@ public class TrendUpIndicator extends CachedIndicator<Boolean> {
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
 
-        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
-        SMAIndicator shortSmaIndicator =new SMAIndicator(closePriceIndicator,shortTrendDays);
-        SMAIndicator midSmaIndicator =new SMAIndicator(closePriceIndicator,midTrendDays);
-        SMAIndicator longSmaIndicator =new SMAIndicator(closePriceIndicator,longTrendDays);
+//        ClosePriceIndicator closePriceIndicator =new ClosePriceIndicator(barSeries);
+//        SMAIndicator shortSmaIndicator =new SMAIndicator(closePriceIndicator,shortTrendDays);
+//        SMAIndicator midSmaIndicator =new SMAIndicator(closePriceIndicator,midTrendDays);
+//        SMAIndicator longSmaIndicator =new SMAIndicator(closePriceIndicator,longTrendDays);
 
         boolean shortTrendHit = shortSmaIndicator.getValue(i).floatValue()>=shortSmaIndicator.getValue(i-1).floatValue();
         boolean midTrendHit = midSmaIndicator.getValue(i).floatValue()>=midSmaIndicator.getValue(i-1).floatValue();

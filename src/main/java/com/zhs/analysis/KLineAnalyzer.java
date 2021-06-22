@@ -1,6 +1,7 @@
 package com.zhs.analysis;
 
 import com.zhs.datasource.FileStockDailyData;
+import com.zhs.entities.BarInfo;
 import com.zhs.utils.KLineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,26 @@ public class KLineAnalyzer {
             System.out.println(out);
         }
         KLineUtil.results = new ArrayList<>();
+        return results;
+    }
+
+    public List<String> getKlinePattern(){
+        List<String> results = new ArrayList<>();
+        List<BarInfo> barInfoList = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            BarInfo hit = KLineUtil.isKlinePattern(barSeries);
+            if(hit!=null){
+                barInfoList.add(hit);
+                results.add(file);
+            }
+        }
+
+        for (BarInfo barInfo:barInfoList){
+            System.out.println(barInfo.getBarName() + " " + barInfo.getHitDate());
+        }
+
         return results;
     }
 }

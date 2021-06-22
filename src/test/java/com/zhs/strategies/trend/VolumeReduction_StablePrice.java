@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
  */
 public class VolumeReduction_StablePrice {
     private List<String> results = new ArrayList<>();
+    private String resultsOutput = "C:\\Users\\neozheng\\Desktop\\results.txt";
 
     /*
     * 趋势向上
@@ -41,7 +43,7 @@ public class VolumeReduction_StablePrice {
      * 趋势向上，18MA支撑
      */
     @Test
-    public void test1(){
+    public void test1() throws IOException {
         // 趋势判定
         //
         TrendAnalyzer trendAnalyzer = new TrendAnalyzer(this.results);
@@ -79,13 +81,15 @@ public class VolumeReduction_StablePrice {
 
         String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);
+
+        FileUtil.writeResultsToFile(resultsOutput,results);
     }
 
     /**
      * 趋势向上，31MA支撑。
      */
     @Test
-    public void test2(){
+    public void test2() throws IOException {
         // 价格扣抵：价格在31日上、10日下。
         //
         PriceAnalyzer priceAnalyzer = new PriceAnalyzer(this.results);
@@ -109,6 +113,8 @@ public class VolumeReduction_StablePrice {
 
         String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);
+
+        FileUtil.writeResultsToFile(resultsOutput,results);
     }
 
     /**
@@ -170,7 +176,7 @@ public class VolumeReduction_StablePrice {
      * 趋势向上，63MA支撑。
      */
     @Test
-    public void test6(){
+    public void test5(){
         // 价格扣抵：价格在63日上、31日下。
         //
         PriceAnalyzer priceAnalyzer = new PriceAnalyzer(this.results);
@@ -194,12 +200,12 @@ public class VolumeReduction_StablePrice {
 
         String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);
+
     }
 
     @Test
-    public void temp(){
-//        String out = Thread.currentThread().getStackTrace()[1].getMethodName();
-//        System.out.println(out);
+    public void temp() throws IOException {
+        FileUtil.writeResultsToFile(resultsOutput,new ArrayList<>());
     }
 
 }

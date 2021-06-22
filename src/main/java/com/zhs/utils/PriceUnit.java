@@ -1,6 +1,8 @@
 package com.zhs.utils;
 
 import org.ta4j.core.BarSeries;
+import org.ta4j.core.indicators.SMAIndicator;
+import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 public class PriceUnit {
     /**
@@ -41,5 +43,46 @@ public class PriceUnit {
         float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
         float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
         return currentClosePrice>=currentOpenPrice;
+    }
+
+    /**
+     * 当前价接触到指定均线，但收盘价在指定均线之上
+     * @param barSeries
+     * @return
+     */
+    public static boolean isCurrentPriceTouchMa(BarSeries barSeries,int ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        float currentLowPrice = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        float maValue = smaIndicator.getValue(endIndex).floatValue();
+
+        return currentLowPrice<=maValue && Math.max(currentClosePrice,currentOpenPrice)>maValue;
+    }
+
+    /**
+     * 当前价格在指定均线的上方
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public static boolean isCurrentPriceAboveMa(BarSeries barSeries,int ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        float currentLowPrice = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        float maValue = smaIndicator.getValue(endIndex).floatValue();
+
+        return Math.min(currentClosePrice,currentOpenPrice)>maValue;
     }
 }
