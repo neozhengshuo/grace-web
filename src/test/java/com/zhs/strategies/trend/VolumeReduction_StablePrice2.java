@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VolumeReduction_StablePrice2 {
 
-    private List<String> firstTest(){
+    private List<String> getTrendUp(){
         List<String> results;
         results = FileStockDailyData.getStockFilesWithFullPath();
 
@@ -67,7 +67,7 @@ public class VolumeReduction_StablePrice2 {
     public void test2(){
 
         List<String> results;
-        results = firstTest();
+        results = getTrendUp();
 
         PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
         results = priceAnalyzer.getCurrentPriceAboveMa(31);
