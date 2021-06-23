@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class VolumeReduction_StablePrice {
 //    private List<String> results = new ArrayList<>();
-    private String resultsOutput = "C:\\Users\\neozheng\\Desktop\\results.txt";
+    private final String resultsOutput = "C:\\Users\\neozheng\\Desktop\\VolumeReduction_StablePrice.txt";
 
     /*
     * 趋势向上
@@ -47,16 +48,10 @@ public class VolumeReduction_StablePrice {
         results = FileStockDailyData.getStockFilesWithFullPath();
 
         TrendAnalyzer trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendUp(31);
-
-        trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(63);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaTrendUp(250);
-
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaPositionAbove(31,63);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaPositionAbove(63,250);
@@ -247,6 +242,13 @@ public class VolumeReduction_StablePrice {
 
     @Test
     public void temp() throws IOException {
-        FileUtil.writeResultsToFile(resultsOutput,new ArrayList<>());
+        List<String> results = FileUtil.readResultFormTxtFile(resultsOutput);
+        System.out.println(results.size());
+
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getReliableTurningPoint();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 }

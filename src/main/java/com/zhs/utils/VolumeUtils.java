@@ -1,5 +1,6 @@
 package com.zhs.utils;
 
+import com.zhs.entities.dict.AboveUnder;
 import com.zhs.entities.dict.RedGreen;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
@@ -100,6 +101,54 @@ public class VolumeUtils {
         return currentVol<shortVol && currentVol < longVol;
 
     }
+
+    /**
+     * 判断第一个均量是否在第二均量的知道位置处
+     * @param barSeries
+     * @param aboveUnder
+     * @param ma1
+     * @param ma2
+     * @return
+     */
+    static public boolean isMaVolumePosition(BarSeries barSeries, AboveUnder aboveUnder,int ma1, int ma2){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator sma1Indicator = new SMAIndicator(volumeIndicator,ma1);
+        SMAIndicator sma2Indicator = new SMAIndicator(volumeIndicator,ma2);
+
+        int ma1Vol = sma1Indicator.getValue(endIndex).intValue();
+        int ma2Vol = sma2Indicator.getValue(endIndex).intValue();
+
+        if(aboveUnder == AboveUnder.UNDER){
+            return ma1Vol <  ma2Vol;
+        }
+        if(aboveUnder == AboveUnder.ABOVE){
+            return ma1Vol > ma2Vol;
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断当前量小于指定周期的均量。
+     * @param barSeries
+     * @param ma 周期
+     * @return
+     */
+    static public boolean isLowVolume(BarSeries barSeries,int ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(volumeIndicator,ma);
+
+        int currentVol = barSeries.getBar(endIndex).getVolume().intValue();
+        int maVol = smaIndicator.getValue(endIndex).intValue();
+
+        return currentVol<maVol;
+    }
+
+
 
     /**
      * 判断当前量是否为特定天数内，小于指定的短周期和长周期均量。

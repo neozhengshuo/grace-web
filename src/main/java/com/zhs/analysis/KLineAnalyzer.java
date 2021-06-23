@@ -41,6 +41,10 @@ public class KLineAnalyzer {
         return results;
     }
 
+    /**
+     * 上影线
+     * @return
+     */
     public List<String> getKlinePattern(){
         List<String> results = new ArrayList<>();
         List<BarInfo> barInfoList = new ArrayList<>();

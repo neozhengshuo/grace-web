@@ -58,6 +58,11 @@ public class KDAnalyzer {
         return results;
     }
 
+    /**
+     * J值是否在指定的值以下开始向上
+     * @param j
+     * @return
+     */
     public List<String> getJUp(float j){
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){

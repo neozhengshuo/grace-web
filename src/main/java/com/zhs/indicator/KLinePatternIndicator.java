@@ -5,6 +5,9 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 
+/**
+ * 两个K棒组合，第一个K棒有上影线，第二K棒
+ */
 public class KLinePatternIndicator  extends CachedIndicator<Boolean> {
     private final BarSeries barSeries;
     private final int endIndex;

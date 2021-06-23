@@ -71,6 +71,12 @@ public class KdjUtil {
     }
 
 
+    /**
+     * 判断J值是否在指定的值以下开始向上。
+     * @param indicator
+     * @param j
+     * @return
+     */
     static public boolean isJUp(RsvIndicator indicator,float j){
         boolean isUp = false;
 

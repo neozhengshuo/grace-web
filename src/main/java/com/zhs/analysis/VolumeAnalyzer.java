@@ -1,6 +1,7 @@
 package com.zhs.analysis;
 
 import com.zhs.datasource.FileStockDailyData;
+import com.zhs.entities.dict.AboveUnder;
 import com.zhs.entities.dict.RedGreen;
 import com.zhs.utils.VolumeUtils;
 import org.slf4j.Logger;
@@ -56,6 +57,44 @@ public class VolumeAnalyzer {
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = VolumeUtils.isLowVolume(barSeries,shortMa,longMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 当前量小于指定周期的均量
+     * @param ma
+     * @return
+     */
+    public List<String> getLowVolume(int ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isLowVolume(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 判断第一个均量是否在第二均量的知道位置处
+     * @param aboveUnder
+     * @param ma1
+     * @param ma2
+     * @return
+     */
+    public List<String> getMaVolumePosition(AboveUnder aboveUnder, int ma1, int ma2){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isMaVolumePosition(barSeries,aboveUnder,ma1,ma2);
             if(hit){
                 results.add(file);
             }

@@ -55,8 +55,7 @@ public class PriceAnalyzer {
     }
 
     /**
-     * 判断当天价格是否上涨。
-     * @param day
+     * 当天价格是否上涨。
      * @return
      */
     public List<String> getCurrentPriceUp(){
@@ -104,5 +103,37 @@ public class PriceAnalyzer {
         return results;
     }
 
+    /**
+     * 当天的K是否为可靠的拐点。
+     * @return
+     */
+    public List<String> getReliableTurningPoint(){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isReliableTurningPoint(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 
+    /**
+     * 判断当天的K是否为可靠的拐点(加入实体判断)。
+     * @return
+     */
+    public List<String> getReliableTurningPointWithRealBody(){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isReliableTurningPointWithRealBody(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 }

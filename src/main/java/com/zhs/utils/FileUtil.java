@@ -8,10 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -180,5 +177,19 @@ public class FileUtil {
             fileWriter.write(item+"\r\n");
         }
         fileWriter.close();
+    }
+
+    public static List<String> readResultFormTxtFile(String fileFullPath) throws IOException {
+        List<String> results = new ArrayList<>();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(fileFullPath)));
+
+        for (String line = br.readLine(); line != null; line = br.readLine()) {
+            results.add(line);
+        }
+        br.close();
+
+        return results;
     }
 }
