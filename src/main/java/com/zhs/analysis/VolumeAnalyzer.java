@@ -65,6 +65,25 @@ public class VolumeAnalyzer {
     }
 
     /**
+     * 当天量大于短周期和长周期均量
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    public List<String> getHighVolume(int shortMa,int longMa){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isHighVolume(barSeries,shortMa,longMa);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
      * 当前量小于指定周期的均量
      * @param ma
      * @return

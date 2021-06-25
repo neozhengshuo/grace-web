@@ -6,6 +6,49 @@ import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
 public class PriceUnit {
+
+    /**
+     * 价格突破指定的均线
+     * @return
+     */
+    public static boolean isPriceBreakUp(BarSeries barSeries,int ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+        float smaValue = smaIndicator.getValue(endIndex).floatValue();
+
+        return currentClosePrice>currentOpenPrice && currentClosePrice>smaValue && currentOpenPrice<smaValue;
+    }
+
+    /**
+     * 价格在特定日期内突破指定均线的。
+     * @param barSeries
+     * @param ma 均线
+     * @param days  表示多少天前。如果为零则表示当天。
+     * @return
+     */
+    public static boolean isPriceBreakUp(BarSeries barSeries,int ma,int days){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
+
+        String name = barSeries.getName();
+        System.out.println(name);
+
+        float currentClosePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex-days).getOpenPrice().floatValue();
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+        float smaValue = smaIndicator.getValue(endIndex-days).floatValue();
+
+        return currentClosePrice>currentOpenPrice && currentClosePrice>smaValue && currentOpenPrice<smaValue;
+    }
+
     /**
      * 判断当日价格是否在指定天数之前的价格之上（扣抵判断）
      * @return
@@ -64,6 +107,27 @@ public class PriceUnit {
         float maValue = smaIndicator.getValue(endIndex).floatValue();
 
         return currentLowPrice<=maValue && Math.max(currentClosePrice,currentOpenPrice)>maValue;
+    }
+
+    /**
+     * 当前价格在指定均线的下方
+     * @param barSeries
+     * @param ma
+     * @return
+     */
+    public static boolean isCurrentPriceUnderMa(BarSeries barSeries,int ma){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
+
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex).getOpenPrice().floatValue();
+        float currentLowPrice = barSeries.getBar(endIndex).getLowPrice().floatValue();
+        float maValue = smaIndicator.getValue(endIndex).floatValue();
+
+        return currentClosePrice<=maValue;
     }
 
     /**

@@ -308,6 +308,12 @@ public class TrendAnalyzer {
         return results;
     }
 
+    /**
+     * 均线金叉
+     * @param shortMA
+     * @param longMA
+     * @return
+     */
     public List<String> getMaGoldCross(int shortMA, int longMA){
         List<String> results = new ArrayList<>();
         for(String file:fileList){

@@ -205,6 +205,8 @@ public class VolumeReduction_StablePrice {
         FileUtil.writeResultsToFile(resultsOutput,results);
     }
 
+
+
     /**
      * 趋势向上，63MA支撑。
      */
@@ -240,7 +242,42 @@ public class VolumeReduction_StablePrice {
 
     }
 
+    /**
+     * 趋势向上，63MA支撑。
+     */
     @Test
+    public void test6() throws IOException {
+        List<String> results = this.getTrendUp();
+
+        // 价格扣抵：价格在63日上、31日下。
+        //
+//        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+//        results = priceAnalyzer.getPositionAbove(63);
+//
+//        priceAnalyzer = new PriceAnalyzer(results);
+//        results = priceAnalyzer.getPositionUnder(31);
+
+        // 量缩：量小于5日、63日均量。
+        //
+        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
+        results = volumeAnalyzer.getLowVolume(5,63);
+
+        // KD的K在低档
+        KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
+        results = kdAnalyzer.getKdjLow(80,80,0);
+
+        // 当天价格上涨
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getCurrentPriceUp();
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
+
+        FileUtil.writeResultsToFile(resultsOutput,results);
+
+    }
+
+    //@Test
     public void temp() throws IOException {
         List<String> results = FileUtil.readResultFormTxtFile(resultsOutput);
         System.out.println(results.size());

@@ -55,6 +55,12 @@ public class JIndicator extends CachedIndicator<Num> {
                 }
             }
         }
-        return numOf(kdjList.get(index).getJ());
+        Num num;
+        try{
+            num = numOf(kdjList.get(index).getJ());
+        }catch (NumberFormatException e){
+            return numOf(50);
+        }
+        return num;
     }
 }

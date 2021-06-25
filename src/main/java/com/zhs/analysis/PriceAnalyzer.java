@@ -19,6 +19,43 @@ public class PriceAnalyzer {
     }
 
     /**
+     * 价格在当天突破指定的均线
+     * @param ma
+     * @return
+     */
+    public List<String> getPriceBreakUp(int ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPriceBreakUp(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 价格在特定日期内突破指定均线的。
+     * @param ma 均线
+     * @param days 表示多少天前。如果为零则表示当天。
+     * @return
+     */
+    public List<String> getPriceBreakUp(int ma,int days){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPriceBreakUp(barSeries,ma,days);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
      * 当前价格在指定天数之前的价格（扣抵判断）
      * @param day
      * @return
@@ -96,6 +133,22 @@ public class PriceAnalyzer {
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = PriceUnit.isCurrentPriceAboveMa(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 当前价格在指定均线的下方
+     * */
+    public List<String> getCurrentPriceUnderMa(int ma){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isCurrentPriceUnderMa(barSeries,ma);
             if(hit){
                 results.add(file);
             }

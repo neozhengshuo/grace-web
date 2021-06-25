@@ -103,6 +103,28 @@ public class VolumeUtils {
     }
 
     /**
+     * 判断当前量大于指定的短周期和长周期均量。
+     * @param barSeries
+     * @param shortMa 短周期
+     * @param longMa 长周期
+     * @return
+     */
+    static public boolean isHighVolume(BarSeries barSeries,int shortMa,int longMa){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<1) return false;
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,shortMa);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,longMa);
+
+        int currentVol = barSeries.getBar(endIndex).getVolume().intValue();
+        int shortVol = shortSmaIndicator.getValue(endIndex).intValue();
+        int longVol = longSmaIndicator.getValue(endIndex).intValue();
+
+        return currentVol>shortVol && currentVol > longVol;
+
+    }
+
+    /**
      * 判断第一个均量是否在第二均量的知道位置处
      * @param barSeries
      * @param aboveUnder
