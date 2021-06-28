@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.ProfitLossPercentageCriterion;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 public class Price_BreakUp {
@@ -22,10 +24,15 @@ public class Price_BreakUp {
         TrendAnalyzer trendAnalyzer;
         PriceAnalyzer priceAnalyzer;
         VolumeAnalyzer volumeAnalyzer;
-        int days = 8;
+        int days = 6;
 
         List<String> results;
         results =  FileStockDailyData.getStockFilesWithFullPath();
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(31,250);
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
 
         priceAnalyzer = new PriceAnalyzer(results);
         results = priceAnalyzer.getPriceBreakUp(5,days);
@@ -35,8 +42,8 @@ public class Price_BreakUp {
         results = priceAnalyzer.getPriceBreakUp(63,days);
         priceAnalyzer = new PriceAnalyzer(results);
 
-//        volumeAnalyzer = new VolumeAnalyzer(results);
-//        results = volumeAnalyzer.getHighVolume(5,63);
+        volumeAnalyzer = new VolumeAnalyzer(results);
+        results = volumeAnalyzer.getHighVolume(5,63);
 
         String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);
@@ -104,5 +111,27 @@ public class Price_BreakUp {
         System.out.println("WinCount:"+winCount+" "+"loseCount:"+loseCount+" pinCount:"+pinCount);
 //        System.out.println(((winCount+pinCount)/(winCount+loseCount)*100+"%"));
         System.out.println(((winCount)/(winCount+loseCount+pinCount)*100+"%"));
+    }
+
+    @Test
+    public void temp(){
+        List<String> results = null;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+//
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.isPriceIncreased(10,0.03F,5,63);
+//        Hashtable<String,Float> dd = new Hashtable<>();
+//        for (String str:results){
+//            dd.put(str,)
+//        }
+//
+//        for (String str:results){
+//            BarSeries barSeries = FileStockDailyData.load(str);
+//            float closePrice = barSeries.getLastBar().getClosePrice().floatValue();
+//        }
+
+
+        String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
     }
 }

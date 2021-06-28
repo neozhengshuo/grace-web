@@ -126,7 +126,7 @@ public class VolumeReduction_StablePrice_ma250Above {
         FileUtil.writeResultsToFile(resultsOutput,results);
     }
 
-    @Test
+//    @Test
     public void patternTest() throws IOException {
         List<String> results = FileUtil.readResultFormTxtFile(resultsOutput);
         System.out.println(results.size());
@@ -139,7 +139,7 @@ public class VolumeReduction_StablePrice_ma250Above {
     }
 
 
-    @Test
+//    @Test
     public void temp1(){
         List<String> results;
         results = FileStockDailyData.getStockFilesWithFullPath();

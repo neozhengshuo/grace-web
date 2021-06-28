@@ -5,6 +5,7 @@ import com.zhs.entities.BarInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.Bar;
+import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeries;
 import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
@@ -14,7 +15,7 @@ import java.util.List;
 
 /**
  * 量缩价稳形态分析:
- * 1. 找到长红K棒，达到指定的参数值（上涨幅度）且量大于5日均量以及63日均量。
+ * 1. 找到长红K棒（价涨3%，量大于5日和63日均线）， 找到后根据指定的参数确定在长红K后续的交易日中价格相对于长红K的波动范围，找到符合波动范围的股票
  * 2. 根据形态的天数判断长红K棒后特定交易日（根据参数指定）内，股价没有跌破和突破指定的值。
  * 3. 设长红K棒实体部分为1，如要设置没有突破长红K实体的3%，其值就为1.03，若要设置价没有跌至长红K实体的一半，其值为0.5。
  */
@@ -29,9 +30,9 @@ public class ShapeAnalyzer {
     /**
      * 量缩价稳形态分析。确定标的后，在30分钟上按平台交易操作。
      * @param fileList 待分析的品种。
-     * @param days 形态天数
-     * @param abovePricePercentage 长红K后股价上涨的幅度，一般设置在1.0以上。
-     * @param underPricePercentage 长红K后股价上涨的幅度，一般设置在1.0以下。
+     * @param days 形态天数，建议最小值为4
+     * @param abovePricePercentage 长红K后股价上涨的幅度,相对于实体的上沿，其值为1,，一般设置在1.0以上。
+     * @param underPricePercentage 长红K后股价上涨的幅度，相对于实体的上沿，其值为1,一般设置在1.0以下。
      */
     public ShapeAnalyzer(List<String> fileList,int days,float abovePricePercentage, float underPricePercentage){
         this.fileList = fileList;
@@ -122,19 +123,94 @@ public class ShapeAnalyzer {
         if(!hit){
             return null;
         }else{
-            // 计算买点
+            // 计算买点,策略1
             //
-            for (int i=barInfo.getIndex()+1;i<=endIndex;i++){
-                int current_vol = barSeries.getBar(i).getVolume().intValue();
-                int target_vol = longKBar.getVolume().intValue();
-                boolean lowerVolHit = current_vol<(target_vol/2);
-                boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()<=barSeries.getBar(i).getOpenPrice().floatValue();
-                if(lowerVolHit && priceHit){
-                    barInfo.setSignal("【BUY "+barSeries.getBar(i).getSimpleDateName()+"】");
+//            float open = barSeries.getBar(barInfo.getIndex()).getOpenPrice().floatValue();
+//            float close = barSeries.getBar(barInfo.getIndex()).getClosePrice().floatValue();
+//            float solid = close-open;
+//            float buyPrice = solid/2+open;
+//            for (int i=barInfo.getIndex()+1;i<=endIndex;i++){
+//                int current_vol = barSeries.getBar(i).getVolume().intValue();
+//                int target_vol = longKBar.getVolume().intValue();
+//                boolean lowerVolHit = current_vol<(target_vol/2);
+////                boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()<=barSeries.getBar(i).getOpenPrice().floatValue();
+//                boolean priceHit = barSeries.getBar(i).getLowPrice().floatValue()<=buyPrice;
+//                if(lowerVolHit && priceHit){
+//                    barInfo.setSignal("【BUY "+barSeries.getBar(i).getSimpleDateName()+"】");
+//                }
+//            }
+
+            // 计算买点，策略3：只适用与形状天数为4（构造函数参数days等于4）
+            //
+            if(days == 4){
+                Bar barCur = barSeries.getBar(barInfo.getIndex());
+                Bar bar1 = barSeries.getBar(barInfo.getIndex()+1);
+                Bar bar2 = barSeries.getBar(barInfo.getIndex()+2);
+                Bar bar3 = barSeries.getBar(barInfo.getIndex()+3);
+
+                int volume = barCur.getVolume().intValue();
+                int volume1 = bar1.getVolume().intValue();
+                int volume2 = bar2.getVolume().intValue();
+                int volume3 = bar3.getVolume().intValue();
+                boolean volumeHit1 = volume1<volume && volume2<volume && volume3<volume;
+                boolean volumeHit2 = volume3<volume1 && volume3<volume2;
+
+                float open1 = bar1.getOpenPrice().floatValue();
+                float close1 = bar1.getClosePrice().floatValue();
+                boolean priceHit1 = close1>=open1;
+
+                float open2 = bar2.getOpenPrice().floatValue();
+                float close2 = bar2.getClosePrice().floatValue();
+                boolean priceHit2 = close2>=open2;
+
+                float open3 = bar3.getOpenPrice().floatValue();
+                float close3 = bar3.getClosePrice().floatValue();
+                boolean priceHit3 = close3<=open3;
+
+                if(volumeHit1 && volumeHit2 && priceHit1 && priceHit2 && priceHit3){
+                    barInfo.setSignal("【BUY "+barSeries.getBar(endIndex).getSimpleDateName()+"】");
+                }
+
+                return barInfo;
+            }
+
+            // 计算买点,策略2
+            //
+            int upVolume = 0;
+            int downVolume = 0;
+            for (int i = barInfo.getIndex()+1;i<=endIndex;i++){
+                float open  = barSeries.getBar(i).getOpenPrice().floatValue();
+                float close  = barSeries.getBar(i).getClosePrice().floatValue();
+                if(open<close){
+                    upVolume++;
+                }else{
+                    downVolume++;
                 }
             }
+            if(upVolume>downVolume){
+                barInfo.setSignal("【BUY "+barSeries.getBar(endIndex).getSimpleDateName()+"】");
+            }
+
             return barInfo;
         }
+    }
+
+    private boolean calculateBuyPoint(BarSeries barSeries,Bar longKBar, int longKBarIndex){
+
+        int endIndex = barSeries.getEndIndex();
+        float open = longKBar.getOpenPrice().floatValue();
+        float close = longKBar.getClosePrice().floatValue();
+        float solid = close-open;
+        float buyPrice = solid/2+open;
+        for (int i=longKBarIndex+1;i<=endIndex;i++){
+            int current_vol = barSeries.getBar(i).getVolume().intValue();
+            int target_vol = longKBar.getVolume().intValue();
+            boolean lowerVolHit = current_vol<(target_vol/2);
+//                boolean priceHit = barSeries.getBar(i).getClosePrice().floatValue()<=barSeries.getBar(i).getOpenPrice().floatValue();
+            boolean priceHit = barSeries.getBar(i).getLowPrice().floatValue()<=buyPrice;
+            return lowerVolHit && priceHit;
+        }
+        return false;
     }
 
     private float getAbovePrice(Bar bar,float abovePricePercentage){
