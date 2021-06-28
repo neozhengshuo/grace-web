@@ -25,9 +25,9 @@ public class ShapeAnalyzerStrategy {
         /**
          * 确定标的后，在30分钟上按平台交易操作。
          */
-        int days = 4;
-        float abovePricePercentage = 1.5F;
-        float underPricePercentage = 0.3F;
+        int days = 11;
+        float abovePricePercentage = 2F;
+        float underPricePercentage = 0.0F;
         ShapeAnalyzer shapeAnalyzer = new ShapeAnalyzer(results,days,abovePricePercentage,underPricePercentage);
         results = shapeAnalyzer.analyzer();
 

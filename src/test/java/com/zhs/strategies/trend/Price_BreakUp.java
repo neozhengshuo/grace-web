@@ -118,18 +118,11 @@ public class Price_BreakUp {
         List<String> results = null;
         results = FileStockDailyData.getStockFilesWithFullPath();
 //
-        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
-        results = priceAnalyzer.isPriceIncreased(10,0.03F,5,63);
-//        Hashtable<String,Float> dd = new Hashtable<>();
-//        for (String str:results){
-//            dd.put(str,)
-//        }
-//
-//        for (String str:results){
-//            BarSeries barSeries = FileStockDailyData.load(str);
-//            float closePrice = barSeries.getLastBar().getClosePrice().floatValue();
-//        }
+//        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+//        results = priceAnalyzer.getPriceIncreasedWithShape(6,0.03F,5,63);
 
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.isPriceIncreased(3,0.04F,5,63);
 
         String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);

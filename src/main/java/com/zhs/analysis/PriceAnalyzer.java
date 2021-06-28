@@ -37,7 +37,7 @@ public class PriceAnalyzer {
     }
 
     /**
-     * 价格在特定天数内突破指定均线的。
+     * 价格在特定天数前上涨。
      * @param days 天数
      * @param increase 上涨的幅度
      * @param volMa1 需要突破的均量1
@@ -57,7 +57,26 @@ public class PriceAnalyzer {
         return results;
     }
 
-
+    /**
+     * 价格在特定天数前上涨,并出现特定形态。
+     * @param days
+     * @param increase
+     * @param volMa1
+     * @param volMa2
+     * @return
+     */
+    public List<String> getPriceIncreasedWithShape(int days,float increase,int volMa1,int volMa2){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPriceIncreasedWithShape(barSeries,days,increase,volMa1,volMa2);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 
     /**
      * 价格在特定日期内突破指定均线的。

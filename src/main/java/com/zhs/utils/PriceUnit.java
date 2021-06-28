@@ -65,15 +65,17 @@ public class PriceUnit {
         int endIndex = barSeries.getEndIndex();
         if(endIndex<days) return false;
 
-        float currentVolume = barSeries.getBar(endIndex-days).getVolume().floatValue();
-        float currentClosePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
-        float currentOpenPrice = barSeries.getBar(endIndex-days).getOpenPrice().floatValue();
+        int targetIndex = endIndex-(days-1);
+
+        float currentVolume = barSeries.getBar(targetIndex).getVolume().floatValue();
+        float currentClosePrice = barSeries.getBar(targetIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(targetIndex).getOpenPrice().floatValue();
 
         VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
         SMAIndicator smaMa1Indicator = new SMAIndicator(volumeIndicator,volMa1);
         SMAIndicator smaMa2Indicator = new SMAIndicator(volumeIndicator,volMa2);
-        float smaMa1Value = smaMa1Indicator.getValue(endIndex-days).floatValue();
-        float smaMa2Value = smaMa2Indicator.getValue(endIndex-days).floatValue();
+        float smaMa1Value = smaMa1Indicator.getValue(targetIndex).floatValue();
+        float smaMa2Value = smaMa2Indicator.getValue(targetIndex).floatValue();
 
         boolean hit0 = currentVolume > smaMa1Value && currentVolume > smaMa2Value;
         boolean hit1 = currentClosePrice>currentOpenPrice;
@@ -85,31 +87,60 @@ public class PriceUnit {
     /**
      * 价格在特定天数前上涨,并出现特定形态。
      * @param barSeries
-     * @param days
+     * @param daysAgo
      * @param increase
      * @param volMa1
      * @param volMa2
      * @return
      */
-    public static boolean isPriceIncreasedWithShape(BarSeries barSeries,int days,float increase,int volMa1,int volMa2){
+    public static boolean isPriceIncreasedWithShape(BarSeries barSeries,int daysAgo,float increase,int volMa1,int volMa2){
         int endIndex = barSeries.getEndIndex();
-        if(endIndex<days) return false;
+        if(endIndex<daysAgo) return false;
 
-        float currentVolume = barSeries.getBar(endIndex-days).getVolume().floatValue();
-        float currentClosePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
-        float currentOpenPrice = barSeries.getBar(endIndex-days).getOpenPrice().floatValue();
+        int targetIndex = endIndex-(daysAgo-1);
+        float currentVolume = barSeries.getBar(targetIndex).getVolume().floatValue();
+        float currentClosePrice = barSeries.getBar(targetIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(targetIndex).getOpenPrice().floatValue();
 
         VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
         SMAIndicator smaMa1Indicator = new SMAIndicator(volumeIndicator,volMa1);
         SMAIndicator smaMa2Indicator = new SMAIndicator(volumeIndicator,volMa2);
-        float smaMa1Value = smaMa1Indicator.getValue(endIndex-days).floatValue();
-        float smaMa2Value = smaMa2Indicator.getValue(endIndex-days).floatValue();
+        float smaMa1Value = smaMa1Indicator.getValue(targetIndex).floatValue();
+        float smaMa2Value = smaMa2Indicator.getValue(targetIndex).floatValue();
 
         boolean hit0 = currentVolume > smaMa1Value && currentVolume > smaMa2Value;
         boolean hit1 = currentClosePrice>currentOpenPrice;
         boolean hit2 = (currentClosePrice-currentOpenPrice)/currentOpenPrice>=increase;
 
-        return hit0 && hit1 && hit2;
+        boolean hit = hit0 && hit1 && hit2;
+        if(hit && daysAgo>3){
+            Bar barCur = barSeries.getBar(targetIndex);
+            Bar bar1 = barSeries.getBar(targetIndex+1);
+            Bar bar2 = barSeries.getBar(targetIndex+2);
+            Bar bar3 = barSeries.getBar(targetIndex+3);
+
+            int volume = barCur.getVolume().intValue();
+            int volume1 = bar1.getVolume().intValue();
+            int volume2 = bar2.getVolume().intValue();
+            int volume3 = bar3.getVolume().intValue();
+            boolean volumeHit1 = volume1<volume && volume2<volume && volume3<volume;
+            boolean volumeHit2 = volume3<volume1 && volume3<volume2;
+
+            float open1 = bar1.getOpenPrice().floatValue();
+            float close1 = bar1.getClosePrice().floatValue();
+            boolean priceHit1 = close1>=open1;
+
+            float open2 = bar2.getOpenPrice().floatValue();
+            float close2 = bar2.getClosePrice().floatValue();
+            boolean priceHit2 = close2>=open2;
+
+            float open3 = bar3.getOpenPrice().floatValue();
+            float close3 = bar3.getClosePrice().floatValue();
+            boolean priceHit3 = close3<=open3;
+
+            hit = volumeHit1 && volumeHit2 && priceHit1 && priceHit2 && priceHit3;
+        }
+        return hit;
     }
 
     /**
