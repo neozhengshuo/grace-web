@@ -53,9 +53,9 @@ public class PriceUnit {
     }
 
     /**
-     * 价格在特定天数内突破指定均线的。
+     * 价格在特定天数前上涨。
      * @param barSeries
-     * @param days 天数
+     * @param days 天数，必须大于0
      * @param increase 上涨的幅度
      * @param volMa1 需要突破的均量1
      * @param volMa2 需要突破的均量2
@@ -65,6 +65,35 @@ public class PriceUnit {
         int endIndex = barSeries.getEndIndex();
         if(endIndex<days) return false;
 
+        float currentVolume = barSeries.getBar(endIndex-days).getVolume().floatValue();
+        float currentClosePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(endIndex-days).getOpenPrice().floatValue();
+
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator smaMa1Indicator = new SMAIndicator(volumeIndicator,volMa1);
+        SMAIndicator smaMa2Indicator = new SMAIndicator(volumeIndicator,volMa2);
+        float smaMa1Value = smaMa1Indicator.getValue(endIndex-days).floatValue();
+        float smaMa2Value = smaMa2Indicator.getValue(endIndex-days).floatValue();
+
+        boolean hit0 = currentVolume > smaMa1Value && currentVolume > smaMa2Value;
+        boolean hit1 = currentClosePrice>currentOpenPrice;
+        boolean hit2 = (currentClosePrice-currentOpenPrice)/currentOpenPrice>=increase;
+
+        return hit0 && hit1 && hit2;
+    }
+
+    /**
+     * 价格在特定天数前上涨,并出现特定形态。
+     * @param barSeries
+     * @param days
+     * @param increase
+     * @param volMa1
+     * @param volMa2
+     * @return
+     */
+    public static boolean isPriceIncreasedWithShape(BarSeries barSeries,int days,float increase,int volMa1,int volMa2){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
 
         float currentVolume = barSeries.getBar(endIndex-days).getVolume().floatValue();
         float currentClosePrice = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
