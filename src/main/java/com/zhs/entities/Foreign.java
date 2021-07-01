@@ -97,4 +97,18 @@ public class Foreign {
     public void setPercentage(double percentage) {
         this.percentage = percentage;
     }
+
+    @Override
+    public String toString() {
+        return "Foreign{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", year=" + year +
+                ", month=" + month +
+                ", day=" + day +
+                ", quantity=" + quantity +
+                ", percentage=" + percentage +
+                '}';
+    }
 }

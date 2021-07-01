@@ -19,6 +19,25 @@ public class PriceAnalyzer {
     }
 
     /**
+     * 价格和均线之间的距离 ，价格要大于均线。
+     * @param ma 均线
+     * @param distance 距离
+     * @return
+     */
+    public List<String> getPriceAndMaDistance(int ma,float distance){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPriceAndMaDistance(barSeries,ma,distance);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
      * 价格在当天突破指定的均线
      * @param ma
      * @return
@@ -59,18 +78,41 @@ public class PriceAnalyzer {
 
     /**
      * 价格在特定天数前上涨,并出现特定形态。
+     * 形态：长阳后的3个交易日中，前两个交易日收红且量缩，第3个交易日收阴量缩且量是这3个交易日中最低的。（量缩价稳）
      * @param days
      * @param increase
      * @param volMa1
      * @param volMa2
      * @return
      */
-    public List<String> getPriceIncreasedWithShape(int days,float increase,int volMa1,int volMa2){
+    public List<String> getPriceIncreasedWithShape1(int days,float increase,int volMa1,int volMa2){
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
             BaseBarSeries barSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = PriceUnit.isPriceIncreasedWithShape(barSeries,days,increase,volMa1,volMa2);
+            boolean hit = PriceUnit.isPriceIncreasedWithShape1(barSeries,days,increase,volMa1,volMa2);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 价格在特定天数前上涨,并出现特定形态。
+     * 形态：长阳后的1天价格窄幅运动(上涨)，浮动率一般在2%之内且量小于长阳的量，且价格没有跌破长阳实体的一半。（量大拉升后没有卖盘涌出）
+     * @param days
+     * @param increase
+     * @param volMa1
+     * @param volMa2
+     * @return
+     */
+    public List<String> getPriceIncreasedWithShape2(int days,float increase,int volMa1,int volMa2){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = PriceUnit.isPriceIncreasedWithShape2(barSeries,days,increase,volMa1,volMa2);
             if(hit){
                 results.add(file);
             }

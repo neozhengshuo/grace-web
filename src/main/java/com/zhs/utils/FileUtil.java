@@ -151,10 +151,10 @@ public class FileUtil {
                 foreign.setQuantity(row.getCell(2).getNumericCellValue());
                 foreign.setPercentage(row.getCell(3).getNumericCellValue());
 
-                LocalDateTime localDateTime =row.getCell(4).getLocalDateTimeCellValue();
-                foreign.setYear(localDateTime.getYear());
-                foreign.setMonth(localDateTime.getMonthValue());
-                foreign.setDay(localDateTime.getDayOfMonth());
+//                LocalDateTime localDateTime =row.getCell(4).getLocalDateTimeCellValue();
+//                foreign.setYear(localDateTime.getYear());
+//                foreign.setMonth(localDateTime.getMonthValue());
+//                foreign.setDay(localDateTime.getDayOfMonth());
                 foreignList.add(foreign);
             }
         }catch (Exception ex){

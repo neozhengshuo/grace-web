@@ -158,4 +158,23 @@ public class VolumeAnalyzer {
         }
         return results;
     }
+
+    /**
+     * 判断量在指定的天数内，有多少次大于5日和63日均量（价上涨）。
+     * @param inDays 指定的天数内
+     * @param times 出现多少次大于5日和63日均量的情况。
+     * @return
+     */
+    public List<String> getVolumeGreater(int inDays,int times){
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BaseBarSeries barSeries = FileStockDailyData.load(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = VolumeUtils.isVolumeGreater(barSeries,inDays,times);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 }

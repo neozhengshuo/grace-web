@@ -219,4 +219,38 @@ public class VolumeUtils {
 
         return shortVol > longVol;
     }
+
+    /**
+     * 判断量在指定的天数内，有多少次大于5日和63日均量（价上涨）。
+     * @param barSeries
+     * @param inDays 指定的天数内
+     * @param times 出现多少次大于5日和63日均量的情况。
+     * @return
+     */
+    static public boolean isVolumeGreater(BarSeries barSeries,int inDays,int times){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=inDays) return false;
+
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator shortSmaIndicator = new SMAIndicator(volumeIndicator,5);
+        SMAIndicator longSmaIndicator = new SMAIndicator(volumeIndicator,63);
+
+        int count = 0;
+        for (int i = endIndex;i>=endIndex-inDays;i--){
+            float open = barSeries.getBar(i).getOpenPrice().floatValue();
+            float close = barSeries.getBar(i).getClosePrice().floatValue();
+            if(close>open){
+                int shortMaVolume = shortSmaIndicator.getValue(i).intValue();
+                int longMaVolume = longSmaIndicator.getValue(i).intValue();
+                int currentVolume = barSeries.getBar(i).getVolume().intValue();
+                if(currentVolume>shortMaVolume && currentVolume>longMaVolume){
+                    count++;
+                }
+                if(count>=times){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

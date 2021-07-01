@@ -121,8 +121,14 @@ public class Price_BreakUp {
 //        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
 //        results = priceAnalyzer.getPriceIncreasedWithShape(6,0.03F,5,63);
 
+//        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+//        results = priceAnalyzer.isPriceIncreased(5,0.04F,5,63);
+
+        TrendAnalyzer trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
         PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
-        results = priceAnalyzer.isPriceIncreased(3,0.04F,5,63);
+        results = priceAnalyzer.getPriceIncreasedWithShape2(5,0.04F,5,63);
 
         String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);

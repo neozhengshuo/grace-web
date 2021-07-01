@@ -121,4 +121,34 @@ public class MovingAverage_Tangled_250Under {
         String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
         FileUtil.writeTxtFile(strOut, results, true);
     }
+
+    @Test
+    public void temp5(){
+        TrendAnalyzer trendAnalyzer;
+        PriceAnalyzer priceAnalyzer;
+        VolumeAnalyzer volumeAnalyzer;
+        int days = 3;
+
+        List<String> results;
+        results =  FileStockDailyData.getStockFilesWithFullPath();
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(31,250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(31,63,0.01F);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaDistance(63,250,0.03F);
+
+
+        String strOut = "temp."+Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
 }

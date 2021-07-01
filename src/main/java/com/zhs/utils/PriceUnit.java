@@ -8,7 +8,24 @@ import org.ta4j.core.indicators.helpers.VolumeIndicator;
 
 public class PriceUnit {
 
+    /**
+     * 价格和均线之间的距离 ，价格要大于均线。
+     * @param barSeries
+     * @param ma 均线
+     * @param distance 距离
+     * @return
+     */
+    public static boolean isPriceAndMaDistance(BarSeries barSeries,int ma,float distance){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<=0) return false;
 
+        ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(barSeries);
+        SMAIndicator smaIndicator = new SMAIndicator(closePriceIndicator,ma);
+        float smaValue = smaIndicator.getValue(endIndex).floatValue();
+        float currentClosePrice = barSeries.getBar(endIndex).getClosePrice().floatValue();
+
+        return (currentClosePrice-smaValue)/smaValue<=distance;
+    }
 
     /**
      * 价格突破指定的均线
@@ -86,6 +103,7 @@ public class PriceUnit {
 
     /**
      * 价格在特定天数前上涨,并出现特定形态。
+     * 形态：长阳后的3个交易日中，前两个交易日收红且量缩，第3个交易日收阴量缩且量是这3个交易日中最低的。（量缩价稳）
      * @param barSeries
      * @param daysAgo
      * @param increase
@@ -93,7 +111,7 @@ public class PriceUnit {
      * @param volMa2
      * @return
      */
-    public static boolean isPriceIncreasedWithShape(BarSeries barSeries,int daysAgo,float increase,int volMa1,int volMa2){
+    public static boolean isPriceIncreasedWithShape1(BarSeries barSeries,int daysAgo,float increase,int volMa1,int volMa2){
         int endIndex = barSeries.getEndIndex();
         if(endIndex<daysAgo) return false;
 
@@ -139,6 +157,58 @@ public class PriceUnit {
             boolean priceHit3 = close3<=open3;
 
             hit = volumeHit1 && volumeHit2 && priceHit1 && priceHit2 && priceHit3;
+        }
+        return hit;
+    }
+
+    /**
+     * 价格在特定天数前上涨,并出现特定形态。
+     * 形态：长阳后的1天价格窄幅运动（上涨），浮动率一般在2%之内且量小于长阳的量，且价格没有跌破长阳实体的一半。（量大拉升后没有卖盘涌出）
+     * @param barSeries
+     * @param daysAgo
+     * @param increase
+     * @param volMa1
+     * @param volMa2
+     * @return
+     */
+    public static boolean isPriceIncreasedWithShape2(BarSeries barSeries,int daysAgo,float increase,int volMa1,int volMa2){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<daysAgo) return false;
+
+        int targetIndex = endIndex-(daysAgo-1);
+        float currentVolume = barSeries.getBar(targetIndex).getVolume().floatValue();
+        float currentClosePrice = barSeries.getBar(targetIndex).getClosePrice().floatValue();
+        float currentOpenPrice = barSeries.getBar(targetIndex).getOpenPrice().floatValue();
+
+        VolumeIndicator volumeIndicator = new VolumeIndicator(barSeries);
+        SMAIndicator smaMa1Indicator = new SMAIndicator(volumeIndicator,volMa1);
+        SMAIndicator smaMa2Indicator = new SMAIndicator(volumeIndicator,volMa2);
+        float smaMa1Value = smaMa1Indicator.getValue(targetIndex).floatValue();
+        float smaMa2Value = smaMa2Indicator.getValue(targetIndex).floatValue();
+
+        boolean hit0 = currentVolume > smaMa1Value && currentVolume > smaMa2Value;
+        boolean hit1 = currentClosePrice>currentOpenPrice;
+        boolean hit2 = (currentClosePrice-currentOpenPrice)/currentOpenPrice>=increase;
+
+        boolean hit = hit0 && hit1 && hit2;
+        if(hit && daysAgo>2){
+            Bar longKBar = barSeries.getBar(targetIndex);
+            Bar bar1 = barSeries.getBar(targetIndex+1);
+
+            int volume = longKBar.getVolume().intValue();
+            int volume1 = bar1.getVolume().intValue();
+            boolean volumeHit = volume1<volume;
+
+            float open1 = bar1.getOpenPrice().floatValue();
+            float close1 = bar1.getClosePrice().floatValue();
+            float floatingRate = Math.abs((close1-open1)/open1);
+            boolean floatingHit = floatingRate<=0.04;
+            boolean priceUpHit = close1>=open1;
+
+            float readBodyHalf = (currentClosePrice-currentOpenPrice)/2+currentOpenPrice; // 实体价格的一半
+            boolean priceHit = close1>readBodyHalf;
+
+            hit = volumeHit && floatingHit && priceHit && priceUpHit;
         }
         return hit;
     }

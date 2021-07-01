@@ -158,12 +158,12 @@ public class TrendAnalyzer {
     /**
      * 对三条均线进行比较，某条均线是否在其他两条均线的中间。
      */
-    public List<String> getMaTrendBetween(int upMa, int midMa, int downMa){
+    public List<String> getMaPositionBetween(int upMa, int midMa, int downMa){
         List<String> results = new ArrayList<>();
         for (String file:fileList){
             BaseBarSeries baseBarSeries = FileStockDailyData.load(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = movingAverageUtil.isTrendBetween(baseBarSeries,upMa,midMa,downMa);
+            boolean hit = movingAverageUtil.isMaPositionBetween(baseBarSeries,upMa,midMa,downMa);
             if(hit){
                 results.add(file);
             }

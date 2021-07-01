@@ -1,9 +1,6 @@
 package com.zhs.strategies.trend;
 
-import com.zhs.analysis.KDAnalyzer;
-import com.zhs.analysis.PriceAnalyzer;
-import com.zhs.analysis.TrendAnalyzer;
-import com.zhs.analysis.VolumeAnalyzer;
+import com.zhs.analysis.*;
 import com.zhs.datasource.FileStockDailyData;
 import com.zhs.utils.FileUtil;
 import org.junit.jupiter.api.Test;
@@ -155,36 +152,97 @@ public class VolumeReduction_StablePrice_ma250Above {
         FileUtil.writeTxtFile(strOut, results, true);
     }
 
-//    @Test
-//    public void test2(){
-//
-//        List<String> results = new ArrayList<>();
-//        results = FileStockDailyData.getStockFilesWithFullPath();
-//
-//        TrendAnalyzer trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(31);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(63);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaTrendUp(250);
-//
-//        trendAnalyzer = new TrendAnalyzer(results);
-//        results = trendAnalyzer.getMaPositionAbove(63,250);
-//
-//        VolumeAnalyzer volumeAnalyzer = new VolumeAnalyzer(results);
-//        results = volumeAnalyzer.getLowVolume(5,63);
-//
+    @Test
+    public void test2(){
+        TrendAnalyzer trendAnalyzer;
+        List<String> results;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+         trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(31);
+
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        priceAnalyzer.getCurrentPriceAboveMa(63);
+
+        priceAnalyzer = new PriceAnalyzer(results);
+        priceAnalyzer.getCurrentPriceUnderMa(250);
+
+
 //        KDAnalyzer kdAnalyzer = new KDAnalyzer(results);
 //        results = kdAnalyzer.getKdjLow(50,50,10);
 //
 //        KLineAnalyzer kLineAnalyzer = new KLineAnalyzer(results);
 //        results = kLineAnalyzer.getKlinePattern();
-//
-//        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
-//        FileUtil.writeTxtFile(strOut, results, true);
-//    }
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    @Test
+    public void test3(){
+
+        List<String> results;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        TrendAnalyzer trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionAbove(63,250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(5);
+
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getCurrentPriceTouchMa(63);
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+    @Test
+    public void test4(){
+
+        TrendAnalyzer trendAnalyzer = null;
+        List<String> results;
+        results = FileStockDailyData.getStockFilesWithFullPath();
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendDown(250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(63);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaTrendUp(31);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionBelow(63,250);
+
+        trendAnalyzer = new TrendAnalyzer(results);
+        results = trendAnalyzer.getMaPositionBelow(31,250);
+
+        PriceAnalyzer priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getCurrentPriceAboveMa(63);
+
+        priceAnalyzer = new PriceAnalyzer(results);
+        results = priceAnalyzer.getCurrentPriceUnderMa(250);
+
+
+        String strOut = Thread.currentThread().getStackTrace()[1].getMethodName();
+        FileUtil.writeTxtFile(strOut, results, true);
+    }
+
+
 
 //    @Test
 //    public void test3(){
@@ -213,3 +271,4 @@ public class VolumeReduction_StablePrice_ma250Above {
 //        FileUtil.writeTxtFile(strOut, results, true);
 //    }
 }
+

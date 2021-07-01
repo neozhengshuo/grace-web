@@ -5,7 +5,6 @@ import com.zhs.analysis.ShapeAnalyzer;
 import com.zhs.analysis.TrendAnalyzer;
 import com.zhs.analysis.VolumeAnalyzer;
 import com.zhs.datasource.FileStockDailyData;
-import com.zhs.entities.dict.MovingAverage;
 import com.zhs.entities.dict.RedGreen;
 import com.zhs.utils.FileUtil;
 import org.junit.jupiter.api.Test;
@@ -91,7 +90,7 @@ public class TrendTradingStrategy7 {
         results = trendAnalyzer.getMaDistance(midMa,longMa,distance);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaTrendBetween(midMa,shortMa,longMa);
+        results = trendAnalyzer.getMaPositionBetween(midMa,shortMa,longMa);
 
         String strOut = String.format("EMA(%s %s %s)_D(%s)",
                 shortMa,

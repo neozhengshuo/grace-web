@@ -72,7 +72,7 @@ public class MovingAverageUtil {
      * @param downMa 下方的均线
      * @return
      */
-    public boolean isTrendBetween(BarSeries barSeries, int upMa, int midMa, int downMa){
+    public boolean isMaPositionBetween(BarSeries barSeries, int upMa, int midMa, int downMa){
         boolean isUp = false;
         int endIndex = barSeries.getEndIndex();
         if(endIndex<0) return false;
