@@ -21,10 +21,20 @@ public class ForeignExcelDataSourceTest {
 
     @Test
     public void test_ReadExcel() throws IOException {
-        List<Foreign> foreignList = FileUtil.readForeignExcel("E:/OneDrive/grace-web/grace-data/group/foreign/sh/foreign-sh-20210201.xlsx");
+        List<Foreign> foreignList = FileUtil.readForeignExcel("E:/OneDrive/grace-web/grace-data/group/foreign/sh/foreign-sh-20210329.xlsx");
         System.out.println(foreignList.size());
         for (Foreign foreign : foreignList) {
             System.out.println(foreign);
+        }
+    }
+
+    @Test
+    public void test_readAllForeignExcel() throws IOException {
+        List<String>  fileList = ForeignExcelDataSource.getExcelFileList();
+        System.out.println(fileList.size());
+        for (String file:fileList){
+            List<Foreign> foreignList = FileUtil.readForeignExcel(file);
+            System.out.println(file + " " +foreignList.size());
         }
     }
 
