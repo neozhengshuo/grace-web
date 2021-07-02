@@ -3,26 +3,29 @@ package com.zhs.datasource;
 import com.zhs.entities.Foreign;
 import com.zhs.utils.FileUtil;
 import com.zhs.utils.PropertyUtil;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.compress.utils.Iterators;
+import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.ta4j.core.BarSeries;
+import org.ta4j.core.BaseBar;
+import org.ta4j.core.BaseBarSeries;
 //import org.apache.poi.ooxml.
-
 
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class ForeignExcelDataSource {
+public class ForeignDataSource {
 
     private static DateTimeFormatter FORMATTER;
 
@@ -53,7 +56,7 @@ public class ForeignExcelDataSource {
         strDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
 
         for (Foreign foreign:foreignList){
-            String fileName = ForeignExcelDataSource.generateOutFileName(foreign);
+            String fileName = ForeignDataSource.generateOutFileName(foreign);
             String fileFullPath = outputDir+"/"+fileName;
 
             // 如果文件不存在则创建新文件写头。
@@ -72,7 +75,7 @@ public class ForeignExcelDataSource {
             // 根据编码查找文件
             //
             String code = foreign.getCode();
-            String targetFile = ForeignExcelDataSource.findCsvFile(code);
+            String targetFile = ForeignDataSource.findCsvFile(code);
             if(targetFile!=null){
                 // 写入数据
                 //
@@ -89,9 +92,9 @@ public class ForeignExcelDataSource {
     }
 
     public static void writeAllForeignDataToCsv() throws IOException, ParseException {
-        List<String> excelFiles = ForeignExcelDataSource.getExcelFileList();
+        List<String> excelFiles = ForeignDataSource.getExcelFileList();
         for (String file:excelFiles){
-            ForeignExcelDataSource.writeSingleForeignDataToCsv(file);
+            ForeignDataSource.writeSingleForeignDataToCsv(file);
         }
     }
 
@@ -101,7 +104,7 @@ public class ForeignExcelDataSource {
      * @return
      */
     private static String findCsvFile(String code){
-        List<String> files = ForeignExcelDataSource.getCsvFileList();
+        List<String> files = ForeignDataSource.getForeignCsvFileList();
         for (String file:files){
             int i = file.indexOf(code);
             if(i>=0){
@@ -142,7 +145,7 @@ public class ForeignExcelDataSource {
      * 获取所有的CSV文件列表
      * @return
      */
-    public static List<String> getCsvFileList(){
+    public static List<String> getForeignCsvFileList(){
         List<String> result = new ArrayList<>();
         String source = PropertyUtil.getProperty("foreign-processed-output");
 
@@ -155,5 +158,38 @@ public class ForeignExcelDataSource {
             result.add(source + "/" + name);
         }
         return result;
+    }
+
+    public static BarSeries loadCsv(String file) throws IOException, ParseException {
+        BaseBarSeries barSeries = new BaseBarSeries(file);
+
+        try(FileReader reader = new  FileReader(file)){
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(reader);
+            List<CSVRecord> csvRecords = IteratorUtils.toList(records.iterator());
+
+            for (int i = 1;i<=csvRecords.size()-1;i++){
+                String a = csvRecords.get(i).get(0);
+                Date b = new SimpleDateFormat("yyyy-MM-dd").parse(a);
+                Instant instant = b.toInstant();
+                ZoneId zoneId = ZoneId.systemDefault();
+
+//                LocalDateTime dt = LocalDateTime.parse(a,FORMATTER);
+                LocalDateTime dt = instant.atZone(zoneId).toLocalDateTime();
+                ZonedDateTime dateTime = ZonedDateTime.of(dt, ZoneId.systemDefault());
+                BaseBar bar = new BaseBar(
+                        Duration.ofDays(1),
+                        dateTime,
+                        csvRecords.get(i).get(3),
+                        csvRecords.get(i).get(3),
+                        csvRecords.get(i).get(3),
+                        csvRecords.get(i).get(3),
+                        csvRecords.get(i).get(4));
+                barSeries.addBar(bar);
+            }
+        }catch (IOException | ParseException ex){
+            throw ex;
+        }
+
+        return barSeries;
     }
 }
