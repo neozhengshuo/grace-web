@@ -16,7 +16,7 @@ public class ForeignAnalyzerTest {
         results = ForeignDataSource.getForeignCsvFileList();
 
         ForeignAnalyzer foreignAnalyzer = new ForeignAnalyzer(results);
-        results = foreignAnalyzer.getIncrementUp(0.1F);
+        results = foreignAnalyzer.getIncrementUp(0.4F,1);
 
         for (String str:results){
             System.out.println(str);

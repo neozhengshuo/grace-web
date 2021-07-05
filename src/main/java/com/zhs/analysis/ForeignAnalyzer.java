@@ -23,12 +23,12 @@ public class ForeignAnalyzer {
         this.fileList = fileList;
     }
 
-    public List<String> getIncrementUp(float rate) throws IOException, ParseException {
+    public List<String> getIncrementUp(float rate,int days) throws IOException, ParseException {
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
             BarSeries barSeries = ForeignDataSource.loadCsv(file);
             logger.info(String.format("Loaded %s",file));
-            boolean hit = ForeignUtil.isIncrementUp(barSeries,rate);
+            boolean hit = ForeignUtil.isIncrementUp(barSeries,rate,days);
             if(hit){
                 results.add(file);
             }

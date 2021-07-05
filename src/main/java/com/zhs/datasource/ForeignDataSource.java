@@ -44,8 +44,7 @@ public class ForeignDataSource {
      * @throws IOException
      * @throws ParseException
      */
-    public static void writeSingleForeignDataToCsv(String file) throws IOException, ParseException {
-        String outputDir = PropertyUtil.getProperty("foreign-processed-output");
+    public static void writeSingleForeignDataToCsv(String outputDir,String file) throws IOException, ParseException {
         List<Foreign> foreignList = FileUtil.readForeignExcel(file);
         System.out.println(String.format("读取外资Excel，共%s条记录：%s,",foreignList.size(),file));
 
@@ -80,7 +79,7 @@ public class ForeignDataSource {
                 // 写入数据
                 //
                 FileWriter fileWriter = new FileWriter(fileFullPath,true);
-                String name = foreign.getName();
+                String name = foreign.getName().replaceAll(","," ");
                 double quantity = foreign.getQuantity();
                 double percentage = foreign.getPercentage();
 
@@ -91,10 +90,10 @@ public class ForeignDataSource {
         }
     }
 
-    public static void writeAllForeignDataToCsv() throws IOException, ParseException {
-        List<String> excelFiles = ForeignDataSource.getExcelFileList();
+    public static void writeAllForeignDataToCsv(String sourceDir,String outputDir) throws IOException, ParseException {
+        List<String> excelFiles = ForeignDataSource.getExcelFileList(sourceDir);
         for (String file:excelFiles){
-            ForeignDataSource.writeSingleForeignDataToCsv(file);
+            ForeignDataSource.writeSingleForeignDataToCsv(outputDir,file);
         }
     }
 
@@ -127,16 +126,15 @@ public class ForeignDataSource {
      * 获取所有的外资文件列表
      * @return
      */
-    public static List<String> getExcelFileList(){
+    public static List<String> getExcelFileList(String sourceDir){
         List<String> result = new ArrayList<>();
-        String source = PropertyUtil.getProperty("foreign-daily-data");
 
-        File file = new File(source);
+        File file = new File(sourceDir);
         String[] fileNames = file.list((dir,name)->name.endsWith(".xlsx"));
         assert fileNames != null;
 
         for(String name:fileNames){
-            result.add(source + "/" + name);
+            result.add(sourceDir + "/" + name);
         }
         return result;
     }

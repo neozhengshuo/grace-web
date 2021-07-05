@@ -142,7 +142,7 @@ public class MovingAverage_Tangled_250Under {
         results = trendAnalyzer.getMaPositionAbove(63,250);
 
         trendAnalyzer = new TrendAnalyzer(results);
-        results = trendAnalyzer.getMaDistance(31,63,0.01F);
+        results = trendAnalyzer.getMaDistance(31,63,0.02F);
 
         trendAnalyzer = new TrendAnalyzer(results);
         results = trendAnalyzer.getMaDistance(63,250,0.03F);

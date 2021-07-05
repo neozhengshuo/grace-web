@@ -6,12 +6,13 @@ import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 
 public class ForeignUtil {
-    static public boolean isIncrementUp(BarSeries barSeries , float rate){
-        int endIndex = barSeries.getEndIndex();
-        if(endIndex<5) return false;
 
-        Bar currentBar = barSeries.getBar(endIndex-4);
-        Bar before1Bar = barSeries.getBar(endIndex-5);
+    static public boolean isIncrementUp(BarSeries barSeries , float rate,int days){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days+1) return false;
+
+        Bar currentBar = barSeries.getBar(endIndex-days);
+        Bar before1Bar = barSeries.getBar(endIndex-days-1);
 
         float currentVolume = currentBar.getClosePrice().floatValue();
         float before1Volume = before1Bar.getClosePrice().floatValue();
