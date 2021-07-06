@@ -16,7 +16,24 @@ public class ForeignAnalyzerTest {
         results = ForeignDataSource.getForeignCsvFileList();
 
         ForeignAnalyzer foreignAnalyzer = new ForeignAnalyzer(results);
-        results = foreignAnalyzer.getIncrementUp(0.4F,1);
+        results = foreignAnalyzer.getIncrementUp(0.4F,0);
+
+        for (String str:results){
+            System.out.println(str);
+        }
+        System.out.println(results.size());
+    }
+
+    @Test
+    public void testTrendUp() throws IOException, ParseException {
+        List<String> results;
+        results = ForeignDataSource.getForeignCsvFileList();
+
+        ForeignAnalyzer foreignAnalyzer = new ForeignAnalyzer(results);
+        results = foreignAnalyzer.getTrendUp(5);
+
+        foreignAnalyzer = new ForeignAnalyzer(results);
+        results = foreignAnalyzer.getCurrentIncrementUp();
 
         for (String str:results){
             System.out.println(str);

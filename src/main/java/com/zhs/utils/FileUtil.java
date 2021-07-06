@@ -147,7 +147,7 @@ public class FileUtil {
                 }
                 Foreign foreign = new Foreign();
                 foreign.setCode(Double.toString(row.getCell(0).getNumericCellValue()));
-                foreign.setName(row.getCell(1).getStringCellValue());
+                foreign.setName(row.getCell(1).getStringCellValue().replace("*",""));
                 foreign.setQuantity(row.getCell(2).getNumericCellValue());
                 foreign.setPercentage(row.getCell(3).getNumericCellValue());
 

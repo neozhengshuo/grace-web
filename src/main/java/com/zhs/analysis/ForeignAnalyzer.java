@@ -35,4 +35,30 @@ public class ForeignAnalyzer {
         }
         return results;
     }
+
+    public List<String> getTrendUp(int ma) throws IOException, ParseException {
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BarSeries barSeries = ForeignDataSource.loadCsv(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = ForeignUtil.isTrendUp(barSeries,ma);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getCurrentIncrementUp() throws IOException, ParseException {
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BarSeries barSeries = ForeignDataSource.loadCsv(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = ForeignUtil.isCurrentIncrementUp(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 }
