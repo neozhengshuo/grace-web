@@ -61,4 +61,17 @@ public class ForeignAnalyzer {
         }
         return results;
     }
+
+    public List<String> getCurrentShrink() throws IOException, ParseException {
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BarSeries barSeries = ForeignDataSource.loadCsv(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = ForeignUtil.isCurrentShrink(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
 }

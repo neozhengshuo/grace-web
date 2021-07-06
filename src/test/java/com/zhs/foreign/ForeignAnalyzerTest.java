@@ -40,4 +40,20 @@ public class ForeignAnalyzerTest {
         }
         System.out.println(results.size());
     }
+
+    @Test
+    public void testIncrementShrink() throws IOException, ParseException {
+        List<String> results;
+        results = ForeignDataSource.getForeignCsvFileList();
+
+        float allCount = results.size();
+
+        ForeignAnalyzer foreignAnalyzer = new ForeignAnalyzer(results);
+        float incrementCount =  foreignAnalyzer.getCurrentIncrementUp().size();
+
+        foreignAnalyzer = new ForeignAnalyzer(results);
+        float shrinkCount =  foreignAnalyzer.getCurrentShrink().size();
+
+        System.out.printf("AllCount,Increment,Shrink,IncrementPercentage%n%s,%s,%s,%s%n",allCount,incrementCount,shrinkCount,incrementCount/allCount);
+    }
 }
