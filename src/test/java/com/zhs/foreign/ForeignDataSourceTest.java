@@ -25,7 +25,7 @@ public class ForeignDataSourceTest {
 
     @Test
     public void test_ReadExcel() throws IOException {
-        List<Foreign> foreignList = FileUtil.readForeignExcel("E:/OneDrive/grace-web/grace-data/group/foreign/sz/foreign-sz-20210705.xlsx");
+        List<Foreign> foreignList = FileUtil.readForeignExcel("E:/OneDrive/grace-web/grace-data/group/foreign/sh/foreign-sh-20210706.xlsx");
         System.out.println(foreignList.size());
         for (Foreign foreign : foreignList) {
             System.out.println(foreign);
@@ -49,7 +49,7 @@ public class ForeignDataSourceTest {
     public void test_writeSingleForeignDataToCsv() throws IOException, ParseException {
         String sourceDir = PropertyUtil.getProperty("foreign-daily-data-SH");
         String outputDir = PropertyUtil.getProperty("foreign-processed-output");
-        ForeignDataSource.writeSingleForeignDataToCsv(outputDir,"E:/OneDrive/grace-web/grace-data/group/foreign/sz/foreign-sz-20210705.xlsx");
+        ForeignDataSource.writeSingleForeignDataToCsv(outputDir,"E:/OneDrive/grace-web/grace-data/group/foreign/sh/foreign-sh-20210706.xlsx");
     }
 
     @Test

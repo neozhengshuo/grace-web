@@ -26,6 +26,32 @@ public class ForeignUtil {
         return false;
     }
 
+    static public boolean isContinuousIncrementUp(BarSeries barSeries , int days){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
+
+//        String name = barSeries.getName();
+//        String a = name;
+
+        boolean hit = false;
+        for(int i = endIndex;i>endIndex-days;i--){
+            float p1 = barSeries.getBar(i).getClosePrice().floatValue();
+            float p2 = barSeries.getBar(i-1).getClosePrice().floatValue();
+            if(p2<=p1){
+                hit = true;
+            }else{
+                hit = false;
+                break;
+            }
+        }
+        if(hit){
+            float p1 = barSeries.getBar(endIndex).getClosePrice().floatValue();
+            float p2 = barSeries.getBar(endIndex-days).getClosePrice().floatValue();
+            hit = p1>p2;
+        }
+        return hit;
+    }
+
 
     static public boolean isTrendUp(BarSeries barSeries ,int ma){
         boolean isUp = false;
@@ -72,5 +98,30 @@ public class ForeignUtil {
         float before1Volume = before1Bar.getClosePrice().floatValue();
 
         return currentVolume<before1Volume;
+    }
+
+    static public boolean isComeIn(BarSeries barSeries, int days){
+        int endIndex = barSeries.getEndIndex();
+        if(endIndex<days) return false;
+
+        Bar currentBar = barSeries.getBar(endIndex);
+        Bar before1Bar = barSeries.getBar(endIndex-1);
+
+        float currentVolume = currentBar.getClosePrice().floatValue();
+        float before1Volume = before1Bar.getClosePrice().floatValue();
+
+        boolean hit1 = currentVolume>before1Volume;
+        if(hit1){
+            boolean hit2 = false;
+            for(int i = endIndex-days;i<endIndex;i++){
+                if(barSeries.getBar(i).getClosePrice().floatValue()==before1Volume){
+                    hit2 = true;
+                }else{
+                    break;
+                }
+            }
+            return hit2;
+        }
+        return false;
     }
 }

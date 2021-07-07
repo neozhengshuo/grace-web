@@ -36,6 +36,19 @@ public class ForeignAnalyzer {
         return results;
     }
 
+    public List<String> getContinuousIncrementUp(int days) throws IOException, ParseException {
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BarSeries barSeries = ForeignDataSource.loadCsv(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = ForeignUtil.isContinuousIncrementUp(barSeries,days);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
     public List<String> getTrendUp(int ma) throws IOException, ParseException {
         List<String> results = new ArrayList<>();
         for (String file:this.fileList){
@@ -68,6 +81,19 @@ public class ForeignAnalyzer {
             BarSeries barSeries = ForeignDataSource.loadCsv(file);
             logger.info(String.format("Loaded %s",file));
             boolean hit = ForeignUtil.isCurrentShrink(barSeries);
+            if(hit){
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public List<String> getComeIn(int days) throws IOException, ParseException {
+        List<String> results = new ArrayList<>();
+        for (String file:this.fileList){
+            BarSeries barSeries = ForeignDataSource.loadCsv(file);
+            logger.info(String.format("Loaded %s",file));
+            boolean hit = ForeignUtil.isComeIn(barSeries,days);
             if(hit){
                 results.add(file);
             }
